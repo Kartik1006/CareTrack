@@ -121,7 +121,7 @@ export const DoctorRounds: React.FC<DoctorRoundsProps> = ({ onSelectPatient }) =
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <StatCard
           title="Daily Rounds Progress"
           value={`${todayDoctorVisitStats.completed} / ${todayDoctorVisitStats.totalRequired}`}
@@ -264,33 +264,29 @@ export const DoctorRounds: React.FC<DoctorRoundsProps> = ({ onSelectPatient }) =
         <div className="flex flex-wrap items-center gap-1.5 bg-slate-100 p-1 rounded-lg border border-slate-200 text-xs font-semibold">
           <button
             onClick={() => setFilterMode('all')}
-            className={`px-2.5 py-1 rounded-md transition-all ${
-              filterMode === 'all' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
-            }`}
+            className={`px-2.5 py-1 rounded-md transition-all ${filterMode === 'all' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              }`}
           >
             All ({admittedPatients.length})
           </button>
           <button
             onClick={() => setFilterMode('ready')}
-            className={`px-2.5 py-1 rounded-md transition-all ${
-              filterMode === 'ready' ? 'bg-teal-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-            }`}
+            className={`px-2.5 py-1 rounded-md transition-all ${filterMode === 'ready' ? 'bg-teal-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              }`}
           >
             Ready for Visit
           </button>
           <button
             onClick={() => setFilterMode('pending_temp')}
-            className={`px-2.5 py-1 rounded-md transition-all ${
-              filterMode === 'pending_temp' ? 'bg-amber-500 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-            }`}
+            className={`px-2.5 py-1 rounded-md transition-all ${filterMode === 'pending_temp' ? 'bg-amber-500 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              }`}
           >
             Waiting for Temp
           </button>
           <button
             onClick={() => setFilterMode('visited')}
-            className={`px-2.5 py-1 rounded-md transition-all ${
-              filterMode === 'visited' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-            }`}
+            className={`px-2.5 py-1 rounded-md transition-all ${filterMode === 'visited' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              }`}
           >
             Visit Done ({todayDoctorVisitStats.completed})
           </button>
@@ -343,9 +339,8 @@ export const DoctorRounds: React.FC<DoctorRoundsProps> = ({ onSelectPatient }) =
                   return (
                     <tr
                       key={patient.id}
-                      className={`hover:bg-slate-50/80 transition-colors ${
-                        eligibility.isEligible && patient.status === 'admitted' ? 'bg-emerald-50/30' : ''
-                      }`}
+                      className={`hover:bg-slate-50/80 transition-colors ${eligibility.isEligible && patient.status === 'admitted' ? 'bg-emerald-50/30' : ''
+                        }`}
                     >
                       {/* Room */}
                       <td className="px-5 py-4 whitespace-nowrap">
@@ -384,11 +379,10 @@ export const DoctorRounds: React.FC<DoctorRoundsProps> = ({ onSelectPatient }) =
                         {hasTemp && todayTemp ? (
                           <div className="flex items-center gap-2">
                             <span
-                              className={`text-sm font-mono font-bold px-2 py-0.5 rounded-md border ${
-                                isFever
+                              className={`text-sm font-mono font-bold px-2 py-0.5 rounded-md border ${isFever
                                   ? 'bg-rose-100 text-rose-800 border-rose-300'
                                   : 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                              }`}
+                                }`}
                             >
                               {todayTemp.temperature.toFixed(1)}°C
                             </span>
@@ -465,19 +459,18 @@ export const DoctorRounds: React.FC<DoctorRoundsProps> = ({ onSelectPatient }) =
                           <button
                             onClick={() => handleOpenVisit(patient)}
                             disabled={!hasTemp}
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
-                              hasVisit
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${hasVisit
                                 ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'
                                 : hasTemp
-                                ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs'
-                                : 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
-                            }`}
+                                  ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs'
+                                  : 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
+                              }`}
                             title={
                               !hasTemp
                                 ? "Today's temperature reading must be completed first"
                                 : hasVisit
-                                ? 'Review visit details'
-                                : 'Conduct daily visit'
+                                  ? 'Review visit details'
+                                  : 'Conduct daily visit'
                             }
                           >
                             <Stethoscope className="w-3.5 h-3.5" />

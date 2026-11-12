@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Settings,
   Database,
@@ -22,7 +22,7 @@ interface SettingsModalProps {
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
-  const { config, updateConfig, resetToDemo, exportData, importData, showToast } = useApp();
+  const { config, userRole, updateConfig, resetToDemo, exportData, importData, showToast } = useApp();
 
   const [activeTab, setActiveTab] = useState<'clinical' | 'supabase' | 'backup'>('clinical');
 
@@ -30,6 +30,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   const [threshold, setThreshold] = useState<number>(config.feverThreshold);
   const [simDate, setSimDate] = useState<string>(config.currentSimulationDate);
 
+  useEffect(() => {
+    if (isOpen) { setThreshold(config.feverThreshold); setSimDate(config.currentSimulationDate); }
+  }, [isOpen, config.feverThreshold, config.currentSimulationDate]);
   // Supabase state
   const currentSupabaseSettings = SupabaseService.getSettings();
   const [supabaseUrl, setSupabaseUrl] = useState(currentSupabaseSettings.url);
@@ -44,11 +47,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
   const handleSaveClinical = (e: React.FormEvent) => {
     e.preventDefault();
+    if (userRole !== 'admin') { showToast('error', 'Administrator required', 'Switch to the Administrator role to change settings.'); return; }
     updateConfig({
       feverThreshold: Number(threshold),
       currentSimulationDate: simDate,
     });
-    showToast('success', 'Configuration Saved', 'Clinical parameters updated.');
+
     onClose();
   };
 
@@ -63,9 +67,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       SupabaseService.saveSettings({
         url: supabaseUrl,
         anonKey: supabaseKey,
-        autoSync: true,
+        autoSync: false,
       });
-      showToast('success', 'Supabase Connected', 'Supabase credentials saved and active.');
+      showToast('success', 'Connection checked', 'Connection settings saved. Patient data remains local; cloud sync is not enabled.');
     }
   };
 
@@ -89,6 +93,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
   const handleImportBackup = () => {
     if (!importJsonText.trim()) return;
+    if (!window.confirm('Replace local data with this backup?')) return;
     const ok = importData(importJsonText);
     if (ok) {
       setImportJsonText('');
@@ -213,14 +218,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-600 space-y-2">
               <div className="flex items-center gap-2 font-bold text-slate-900">
                 <Database className="w-4 h-4 text-emerald-600" />
-                <span>Zero-Friction Cloud Persistence</span>
+                <span>Local persistence · optional connectivity diagnostic</span>
               </div>
               <p className="leading-relaxed">
                 By default, CareTrack operates with high-fidelity, refresh-persistent local storage so that
                 it runs 100% out-of-the-box when deployed on Vercel without requiring external setup.
               </p>
               <p className="leading-relaxed">
-                To connect to your own Supabase project, provide your Project URL and Anon Key below, or configure{' '}
+                This diagnostic does not sync patient data or enable authentication. Use only a public key; never a secret key. Optional connection variables:{' '}
                 <code className="bg-slate-200 px-1 py-0.5 rounded text-[11px]">VITE_SUPABASE_URL</code> and{' '}
                 <code className="bg-slate-200 px-1 py-0.5 rounded text-[11px]">VITE_SUPABASE_ANON_KEY</code> in Vercel.
               </p>
@@ -327,6 +332,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               <button
                 type="button"
                 onClick={() => {
+                  if (!window.confirm('Replace all local data with demo defaults?')) return;
                   resetToDemo();
                   onClose();
                 }}

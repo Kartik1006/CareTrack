@@ -262,3 +262,4 @@ export const TemperatureModal: React.FC<TemperatureModalProps> = ({
     </Modal>
   );
 };
+

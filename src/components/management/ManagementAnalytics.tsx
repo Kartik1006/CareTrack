@@ -37,12 +37,12 @@ export const ManagementAnalytics: React.FC = () => {
   const displaySuccessRate =
     displayCompleted > 0
       ? Number(((displayRecovered / displayCompleted) * 100).toFixed(1))
-      : 100;
+      : 0;
   const displayMortalityRate =
     displayCompleted > 0
       ? Number(((displayDeaths / displayCompleted) * 100).toFixed(1))
       : 0;
-  const isMortalityAlert = displayMortalityRate > 15;
+  const isMortalityAlert = displayCompleted > 0 && displayDeaths / displayCompleted > 0.15;
 
   const occupancyRate = Number(
     ((occupiedBedsCount / config.facilityMaxCapacity) * 100).toFixed(1)

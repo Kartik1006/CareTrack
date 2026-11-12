@@ -14,7 +14,7 @@ import { SettingsModal } from './components/settings/SettingsModal';
 import { ConfirmDialog } from './components/common/ConfirmDialog';
 
 const AppContent: React.FC = () => {
-  const { resetToDemo, selectedPatientId, setSelectedPatientId } = useApp();
+  const { config, userRole, resetToDemo, selectedPatientId, setSelectedPatientId } = useApp();
 
   const [currentTab, setCurrentTab] = useState<NavTabId>('overview');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -23,6 +23,7 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans selection:bg-teal-500 selection:text-white">
+      <div className="bg-teal-950 text-teal-50 text-xs text-center px-4 py-2">Demo date: {config.currentSimulationDate} · saved in this browser · role switcher is demo access · calendar date controlled in administrator settings</div>
       {/* Top Navbar */}
       <Navbar
         onOpenSettings={() => setIsSettingsOpen(true)}
@@ -41,22 +42,23 @@ const AppContent: React.FC = () => {
 
         {/* Main Content Area */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0 overflow-y-auto">
-          {currentTab === 'overview' && (
+          {(['nurse', 'doctor', 'admin'].includes(currentTab) && currentTab !== userRole) && <div className="rounded-2xl border border-teal-200 bg-white p-8"><h1 className="font-bold text-xl">Switch role to continue</h1><p className="mt-2 text-slate-500">Select the {currentTab === 'admin' ? 'Administrator' : currentTab} demo role in the header or mobile menu to use this workspace.</p></div>}
+          {currentTab === 'overview'  && (
             <FacilityOverview
               onNavigateTab={setCurrentTab}
               onSelectPatient={setSelectedPatientId}
             />
           )}
 
-          {currentTab === 'nurse' && (
+          {currentTab === 'nurse' && userRole === 'nurse' && (
             <NurseStation onSelectPatient={setSelectedPatientId} />
           )}
 
-          {currentTab === 'doctor' && (
+          {currentTab === 'doctor' && userRole === 'doctor' && (
             <DoctorRounds onSelectPatient={setSelectedPatientId} />
           )}
 
-          {currentTab === 'admin' && (
+          {currentTab === 'admin' && userRole === 'admin' && (
             <AdminDashboard onSelectPatient={setSelectedPatientId} />
           )}
 

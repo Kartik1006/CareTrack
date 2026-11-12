@@ -109,8 +109,5 @@ alter table doctor_visits enable row level security;
 alter table audit_logs enable row level security;
 alter table system_config enable row level security;
 
-create policy "Allow all operations for authenticated and demo roles" on patients for all using (true);
-create policy "Allow all operations for authenticated and demo roles" on temperature_records for all using (true);
-create policy "Allow all operations for authenticated and demo roles" on doctor_visits for all using (true);
-create policy "Allow all operations for authenticated and demo roles" on audit_logs for all using (true);
-create policy "Allow all operations for authenticated and demo roles" on system_config for all using (true);
+
+-- No public access policies: cloud writes require a separately implemented authenticated backend.

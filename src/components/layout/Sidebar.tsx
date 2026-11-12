@@ -38,6 +38,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     admittedPatients,
     getPatientEligibility,
     outcomeMetrics,
+    config,
     userRole,
     setUserRole,
   } = useApp();
@@ -225,7 +226,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <span>Discharge Protocol</span>
             </div>
             <p className="text-slate-400 text-[11px] leading-relaxed">
-              3 consecutive complete fever-free days (&lt; 38.0°C) required before Doctor clearance. Final bed release by Administrator.
+              The 3 calendar days before the demo date each require a reading below {config.feverThreshold}&deg;C and a doctor visit. Today's care is also required before clearance. Only administrators release beds.
             </p>
           </div>
 
@@ -254,3 +255,4 @@ export const Sidebar: React.FC<SidebarProps> = ({
     </>
   );
 };
+

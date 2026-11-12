@@ -317,7 +317,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       patient,
       temperatures,
       config.feverThreshold,
-      config.quarantineRequiredFeverFreeDays
+      config.quarantineRequiredFeverFreeDays,
+      config.currentSimulationDate, doctorVisits
     );
   };
 
@@ -345,6 +346,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     );
   };
 
+  const reject = (message: string) => {
+    showToast('error', 'Action blocked', message);
+    return { success: false, message };
+  };
+  const active = (p: Patient) => p.status === 'admitted' || p.status === 'discharge_pending_admin';
+
   // BUSINESS ACTIONS
 
   // 1. Admit Patient (Admin)
@@ -359,6 +366,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     symptoms: string[];
     medicalHistory?: string;
   }) => {
+    if (userRole !== 'admin') return reject('Only administrators can admit patients.');
+    if (!data.fullName.trim() || !data.nationalId.trim() || !data.contactPhone.trim() || !data.emergencyContact.trim() ||
+      !Number.isInteger(data.age) || data.age < 0 || data.age > 120 || !Number.isInteger(data.roomNumber)) return reject('Complete all required fields with valid values.');
+    if (admittedPatients.some(p => p.nationalId.toLowerCase() === data.nationalId.trim().toLowerCase())) return reject('This patient is already admitted.');
     if (isCapacityFull) {
       showToast('error', 'Admission Blocked', `Facility is at maximum capacity (${config.facilityMaxCapacity}/${config.facilityMaxCapacity} beds). Discharge or transfer a patient to release a room.`);
       return { success: false, message: 'Facility capacity reached (74/74).' };
@@ -376,7 +387,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       return { success: false, message: `Room ${data.roomNumber} is already occupied.` };
     }
 
-    const patientId = 'CT-' + Math.floor(100 + Math.random() * 900);
+    const patientId = 'CT-' + crypto.randomUUID().slice(0, 8).toUpperCase();
     const newPatient: Patient = {
       id: patientId,
       fullName: data.fullName,
@@ -413,7 +424,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     isCorrection = false,
     correctionReason?: string
   ) => {
+    if (userRole !== 'nurse') return reject('Only nurses can record or correct temperatures.');
+    if (!Number.isFinite(temp) || temp < 32 || temp > 43) return reject('Temperature must be between 32 and 43°C.');
+    if (isCorrection && !correctionReason?.trim()) return reject('A correction reason is required.');
     const patient = getPatientById(patientId);
+    if (patient && !active(patient)) return reject('Patient is no longer admitted.');
     if (!patient) {
       showToast('error', 'Patient Not Found', 'The requested patient could not be located.');
       return { success: false, message: 'Patient not found.' };
@@ -508,7 +523,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     conditionSummary: DoctorVisit['conditionSummary'];
     vitals?: DoctorVisit['vitals'];
   }) => {
+    if (userRole !== 'doctor') return reject('Only doctors can record visits.');
+    if (!data.clinicalNotes.trim() || !data.treatmentGiven.trim()) return reject('Clinical notes and treatment are required.');
     const patient = getPatientById(data.patientId);
+    if (patient && !active(patient)) return reject('Patient is no longer admitted.');
     if (!patient) {
       showToast('error', 'Patient Not Found', 'Patient does not exist.');
       return { success: false, message: 'Patient not found.' };
@@ -569,17 +587,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // 4. Doctor Approves Discharge (Doctor)
   const approveDischarge = (patientId: string, doctorNotes: string) => {
+    if (userRole !== 'doctor') return reject('Only doctors can approve discharge.');
+    if (!doctorNotes.trim()) return reject('Discharge notes are required.');
+    if (!hasTemperatureToday(patientId) || !hasDoctorVisitToday(patientId)) return reject("Complete today's temperature and doctor visit first.");
     const patient = getPatientById(patientId);
     if (!patient) return { success: false, message: 'Patient not found.' };
 
     const eligibility = getPatientEligibility(patient);
-    if (!eligibility.isEligible) {
-      showToast(
-        'warning',
-        'Eligibility Warning',
-        `Clinical criteria requires 3 consecutive fever-free days. Patient currently has ${eligibility.consecutiveFeverFreeDays}/3 days.`
-      );
-    }
+    if (!eligibility.isEligible) return reject(eligibility.reason);
+
 
     setPatients((prev) =>
       prev.map((p) =>
@@ -612,6 +628,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // 5. Finalize Discharge & Release Room (Administrator)
   const finalizeDischarge = (patientId: string) => {
+    if (userRole !== 'admin') return reject('Only administrators can finalize discharge.');
     const patient = getPatientById(patientId);
     if (!patient) return { success: false, message: 'Patient not found.' };
 
@@ -620,6 +637,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       return { success: false, message: 'Requires doctor approval first.' };
     }
 
+    const review = evaluateDischargeEligibility({...patient, status: 'admitted'}, temperatures, config.feverThreshold, 3, config.currentSimulationDate, doctorVisits);
+    if (!review.isEligible || !hasTemperatureToday(patientId) || !hasDoctorVisitToday(patientId)) return reject('Clinical criteria changed or daily care is pending. Doctor review required.');
+    if (!active(patient)) return reject('Patient already has a completed outcome.');
     const releasedRoom = patient.roomNumber;
 
     setPatients((prev) =>
@@ -637,7 +657,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     logAudit(
       'DISCHARGE_FINALIZED_ADMIN',
-      `Administrator finalized discharge for ${patient.fullName}. Room ${releasedRoom} (${getZoneForRoom(releasedRoom)}) is now vacant and sanitized for next admission. Outcome: Recovered.`,
+      `Administrator finalized discharge for ${patient.fullName}. Room ${releasedRoom} (${getZoneForRoom(releasedRoom)}) is now vacant for next admission. Outcome: Recovered.`,
       patient.id,
       patient.fullName
     );
@@ -664,9 +684,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // 6. Record Mortality (Doctor / Admin)
   const recordPatientDeceased = (patientId: string, deceasedNotes: string) => {
+    if (userRole !== 'doctor') return reject('Only doctors can record a death.');
+    if (!deceasedNotes.trim()) return reject('Clinical outcome notes are required.');
     const patient = getPatientById(patientId);
     if (!patient) return { success: false, message: 'Patient not found.' };
 
+    if (!active(patient)) return reject('Patient already has a completed outcome.');
     const releasedRoom = patient.roomNumber;
 
     setPatients((prev) =>
@@ -702,14 +725,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // Config Update
   const updateConfig = (newConfig: Partial<SystemConfig>) => {
-    setConfig((prev) => {
-      const updated = { ...prev, ...newConfig };
-      logAudit(
-        'CONFIG_UPDATED',
-        `Facility configuration modified: Fever Threshold=${updated.feverThreshold}°C, Simulation Date=${updated.currentSimulationDate}.`
-      );
-      return updated;
-    });
+    if (userRole !== 'admin') { reject('Only administrators can change facility settings.'); return; }
+    const updated = {...config, ...newConfig, facilityMaxCapacity: 74, quarantineRequiredFeverFreeDays: 3};
+    if (!Number.isFinite(updated.feverThreshold) || updated.feverThreshold < 36 || updated.feverThreshold > 40 ||
+      !/^\d{4}-\d{2}-\d{2}$/.test(updated.currentSimulationDate) || !Number.isFinite(Date.parse(updated.currentSimulationDate))) {
+      reject('Enter a valid date and threshold between 36 and 40°C.'); return;
+    }
+    setConfig(updated);
+    logAudit('CONFIG_UPDATED', `Threshold: ${updated.feverThreshold}°C; demo date: ${updated.currentSimulationDate}.`);
     showToast('info', 'Configuration Updated', 'System parameters updated.');
   };
 
@@ -732,6 +755,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // Import Data
   const importData = (jsonString: string) => {
+    if (userRole !== 'admin') { reject('Only administrators can restore backups.'); return false; }
     const ok = StorageService.importBackup(jsonString);
     if (ok) {
       setPatients(StorageService.getPatients());

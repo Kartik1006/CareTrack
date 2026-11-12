@@ -22,7 +22,7 @@ export const ToastContainer: React.FC = () => {
   };
 
   return (
-    <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-md w-full pointer-events-none px-4 sm:px-0">
+    <div aria-live="polite" className="fixed bottom-5 right-0 sm:right-5 z-50 flex flex-col gap-2 max-w-md w-full pointer-events-none px-4 sm:px-0">
       {toasts.map((toast) => (
         <div
           key={toast.id}
@@ -44,3 +44,4 @@ export const ToastContainer: React.FC = () => {
     </div>
   );
 };
+

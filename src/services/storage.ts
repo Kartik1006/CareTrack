@@ -158,6 +158,30 @@ export const StorageService = {
   importBackup(jsonString: string): boolean {
     try {
       const data = JSON.parse(jsonString);
+      if (!data || !['patients', 'temperatures', 'doctorVisits', 'auditLogs'].every(k => Array.isArray(data[k]))) return false;
+      const c = data.config;
+      if (!c || c.facilityMaxCapacity !== 74 || c.quarantineRequiredFeverFreeDays !== 3 ||
+          !Number.isFinite(c.feverThreshold) || c.feverThreshold < 36 || c.feverThreshold > 40 ||
+          !/^\d{4}-\d{2}-\d{2}$/.test(c.currentSimulationDate) || typeof c.facilityName !== 'string') return false;
+      const unique = (values: string[]) => new Set(values).size === values.length;
+      const validDate = (v: unknown) => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) && Number.isFinite(Date.parse(v));
+      if (!unique(data.patients.map((p: Patient) => p.id)) || data.patients.some((p: Patient) =>
+        !p || !['id','fullName','nationalId','contactPhone','emergencyContact'].every(k => typeof (p as unknown as Record<string,unknown>)[k] === 'string') ||
+        !Number.isInteger(p.age) || p.age < 0 || p.age > 120 || !Number.isInteger(p.roomNumber) || p.roomNumber < 1 || p.roomNumber > 74 ||
+        !['Male','Female','Other'].includes(p.gender) || !['Wing A','Wing B','Wing C'].includes(p.zone) ||
+        !['admitted','discharge_pending_admin','discharged','deceased'].includes(p.status) ||
+        !validDate(p.admissionDate) || !Array.isArray(p.symptoms) || p.symptoms.some(x => typeof x !== 'string'))) return false;
+      const active = data.patients.filter((p: Patient) => ['admitted','discharge_pending_admin'].includes(p.status));
+      if (active.length > 74 || !unique(active.map((p: Patient) => String(p.roomNumber)))) return false;
+      const ids = new Set(data.patients.map((p: Patient) => p.id));
+      for (const list of [data.temperatures, data.doctorVisits]) {
+        if (!unique(list.map((r: TemperatureRecord) => r.id)) || !unique(list.map((r: TemperatureRecord) => `${r.patientId}:${r.date}`)) ||
+          list.some((r: TemperatureRecord) => !r || !ids.has(r.patientId) || !validDate(r.date) || typeof r.patientName !== 'string')) return false;
+      }
+      if (data.temperatures.some((t: TemperatureRecord) => !Number.isFinite(t.temperature) || t.temperature < 32 || t.temperature > 43 || typeof t.recordedAt !== 'string' || typeof t.recordedBy !== 'string')) return false;
+      if (data.doctorVisits.some((v: DoctorVisit) => typeof v.visitedAt !== 'string' || typeof v.clinicalNotes !== 'string' || typeof v.treatmentGiven !== 'string' || typeof v.doctorName !== 'string' ||
+        !data.temperatures.some((t: TemperatureRecord) => t.patientId === v.patientId && t.date === v.date))) return false;
+      if (data.auditLogs.some((a: AuditLog) => !a || !['id','timestamp','action','actorName','actorRole','details'].every(k => typeof (a as unknown as Record<string,unknown>)[k] === 'string'))) return false;
       if (data.patients && Array.isArray(data.patients)) {
         this.savePatients(data.patients);
       }

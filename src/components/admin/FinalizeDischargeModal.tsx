@@ -100,3 +100,4 @@ export const FinalizeDischargeModal: React.FC<FinalizeDischargeModalProps> = ({
     </Modal>
   );
 };
+

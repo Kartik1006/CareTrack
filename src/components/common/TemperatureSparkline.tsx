@@ -125,3 +125,4 @@ export const TemperatureSparkline: React.FC<TemperatureSparklineProps> = ({
     </div>
   );
 };
+

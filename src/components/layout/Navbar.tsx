@@ -67,7 +67,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Brand & Title */}
           <div className="flex items-center gap-3">
             <button
-              onClick={onToggleMobileMenu}
+              aria-label="Open navigation" onClick={onToggleMobileMenu}
               className="lg:hidden p-2 rounded-lg text-slate-500 hover:bg-slate-100"
             >
               <Menu className="w-5 h-5" />
@@ -176,3 +176,4 @@ export const Navbar: React.FC<NavbarProps> = ({
     </header>
   );
 };
+

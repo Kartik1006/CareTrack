@@ -82,8 +82,8 @@ export const StatCard: React.FC<StatCardProps> = ({
       <div className="flex items-start justify-between">
         <div>
           <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">{title}</p>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-slate-900 tracking-tight">{value}</span>
+          <div className="mt-2 flex flex-wrap items-baseline gap-2">
+            <span className="text-2xl whitespace-nowrap font-bold text-slate-900 tracking-tight">{value}</span>
             {badge && (
               <span className={`text-xs px-2 py-0.5 rounded-full font-medium border ${scheme.badge}`}>
                 {badge}
@@ -105,7 +105,7 @@ export const StatCard: React.FC<StatCardProps> = ({
             </p>
           )}
         </div>
-        <div className={`p-3 rounded-lg ${scheme.iconBg}`}>{icon}</div>
+        <div className={`p-2 rounded-lg shrink-0 ${scheme.iconBg}`}>{icon}</div>
       </div>
     </div>
   );

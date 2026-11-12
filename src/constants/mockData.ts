@@ -943,3 +943,14 @@ export const INITIAL_AUDIT_LOGS: AuditLog[] = [
     details: 'Authorized temperature correction: Changed 39.5°C -> 37.3°C. Reason: Calibration artifact on initial device, re-checked with calibrated unit.',
   },
 ];
+
+// Historical rounds for completed observation days in the seeded assessment.
+for (const id of ['CT-101', 'CT-102', 'CT-103']) {
+  const p = INITIAL_PATIENTS.find(p => p.id === id)!;
+  for (const date of [THREE_DAYS_AGO, TWO_DAYS_AGO, YESTERDAY]) {
+    const reading = INITIAL_TEMPERATURE_RECORDS.find(t => t.patientId === id && t.date === date);
+    if (!reading) INITIAL_TEMPERATURE_RECORDS.push({id: `TR-seed-${id}-${date}`, patientId:id, patientName:p.fullName, roomNumber:p.roomNumber, date, temperature:36.7, isFever:false, recordedAt:`${date}T08:00:00Z`, recordedBy:'Nurse Jessica Hayes, RN'});
+    else reading.temperature = 36.7;
+    if (!INITIAL_DOCTOR_VISITS.some(v => v.patientId === id && v.date === date)) INITIAL_DOCTOR_VISITS.push({id:`DV-seed-${id}-${date}`, patientId:id, patientName:p.fullName, roomNumber:p.roomNumber, date, visitedAt:`${date}T10:00:00Z`, doctorName:'Dr. Sarah Lin, MD', clinicalNotes:'Afebrile, stable and improving.', treatmentGiven:'Hydration and observation.', conditionSummary:'Improving'});
+  }
+}
