@@ -94,7 +94,7 @@ export const NurseStation: React.FC<NurseStationProps> = ({ onSelectPatient }) =
         <div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
             <Thermometer className="w-7 h-7 text-teal-600" />
-            Nurse Temperature Station
+            Temperature rounds
           </h1>
           <p className="text-sm text-slate-500 mt-1">
             Real-time daily temperature monitoring and fever detection for {admittedPatients.length} admitted patients.
@@ -150,7 +150,7 @@ export const NurseStation: React.FC<NurseStationProps> = ({ onSelectPatient }) =
       </div>
 
       {/* Search and Filters Bar */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between gap-4">
+      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3 sm:space-y-0 sm:flex sm:flex-wrap sm:items-center sm:justify-between gap-4">
         {/* Search Input */}
         <div className="relative flex-1 max-w-md">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />

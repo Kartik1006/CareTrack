@@ -104,7 +104,7 @@ export const DoctorRounds: React.FC<DoctorRoundsProps> = ({ onSelectPatient }) =
         <div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
             <Stethoscope className="w-7 h-7 text-indigo-600" />
-            Doctor Clinical Rounds & Discharge Clearance
+            Clinical rounds
           </h1>
           <p className="text-sm text-slate-500 mt-1">
             Conduct daily physician evaluations, review afebrile streaks, and clear eligible patients for discharge.
@@ -247,7 +247,7 @@ export const DoctorRounds: React.FC<DoctorRoundsProps> = ({ onSelectPatient }) =
       )}
 
       {/* Main Table Controls */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between gap-4">
+      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3 sm:space-y-0 sm:flex sm:flex-wrap sm:items-center sm:justify-between gap-4">
         {/* Search */}
         <div className="relative flex-1 max-w-md">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />

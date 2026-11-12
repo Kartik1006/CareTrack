@@ -1,0 +1,9 @@
+import type { UserRole } from '../types';
+export type NavTabId = 'overview' | UserRole | 'audit';
+export const ROLE_DETAILS = {
+  nurse: { label: 'Nurse', workspace: 'Temperature rounds', shortName: 'Jessica Hayes', initials: 'JH', description: 'Record daily temperatures and keep patient observations up to date.', permissions: ['Record daily temperatures', 'Correct readings with a reason', 'Review patient history'], restriction: 'Doctor visits and discharge decisions are managed by doctors.' },
+  doctor: { label: 'Doctor', workspace: 'Clinical rounds', shortName: 'Dr. Sarah Lin', initials: 'SL', description: 'Complete clinical rounds, review treatment and approve eligible discharges.', permissions: ['Complete daily visits', 'Approve eligible discharges', 'Record clinical outcomes'], restriction: 'Administrators finalize approved discharges and release beds.' },
+  admin: { label: 'Administrator', workspace: 'Admissions & beds', shortName: 'Marcus Vance', initials: 'MV', description: 'Coordinate admissions, available rooms and approved discharge requests.', permissions: ['Admit and assign rooms', 'Finalize approved discharges', 'Manage facility settings'], restriction: 'Medical discharge approval must come from a doctor.' },
+  management: { label: 'Management', workspace: 'Outcomes & insights', shortName: 'Catherine Howard', initials: 'CH', description: 'Monitor facility performance, completed outcomes and care compliance.', permissions: ['View occupancy and compliance', 'Review recovery and mortality', 'Inspect the audit trail'], restriction: 'Read-only oversight. Clinical and admission records cannot be changed.' },
+} satisfies Record<UserRole, { label: string; workspace: string; shortName: string; initials: string; description: string; permissions: string[]; restriction: string }>;
+export function canAccessTab(role: UserRole, tab: NavTabId) { return tab === 'overview' || tab === 'audit' || tab === role; }

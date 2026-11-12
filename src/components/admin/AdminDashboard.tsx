@@ -62,7 +62,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onSelectPatient 
         <div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
             <Building2 className="w-7 h-7 text-teal-600" />
-            Facility Administration & Bed Operations
+            Admissions & beds
           </h1>
           <p className="text-sm text-slate-500 mt-1">
             Manage 74-bed capacity allocation, patient intake admissions, and finalize doctor-approved discharges.

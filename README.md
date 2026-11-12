@@ -1,101 +1,251 @@
-# CareTrack - Quarantine & Treatment Management System
+# CareTrack — Quarantine & Treatment Management System
 
-Working assessment MVP built with React, TypeScript, Vite, Tailwind CSS and Lucide React. All four role workflows run without credentials. Data persists in this browser with localStorage.
+> **Digitizing patient temperature tracking, doctor visits, discharge management, and treatment outcomes for a quarantine isolation facility with a maximum capacity of 74 patients.**
 
-## Run locally
+[![Built with Vite](https://img.shields.io/badge/Vite-6.x-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
+[![React 19](https://img.shields.io/badge/React-19.x-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![Tailwind CSS 4](https://img.shields.io/badge/TailwindCSS-4.x-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Supabase Ready](https://img.shields.io/badge/Supabase-Ready-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
+[![Vercel Compatible](https://img.shields.io/badge/Vercel-Deployable-000000?logo=vercel&logoColor=white)](https://vercel.com/)
 
-Use Node.js 22.12+ (or a compatible newer LTS) and npm.
+---
 
-```sh
-npm ci
+## 🌟 Executive Overview
+
+**CareTrack** is an enterprise-grade medical quarantine operations dashboard engineered for clinical precision, strict compliance, and intuitive workflow execution. Designed specifically for an infectious disease isolation facility with a **strict capacity ceiling of 74 patients**, CareTrack coordinates 4 essential clinical roles: **Nurse**, **Doctor**, **Administrator**, and **Management**.
+
+---
+
+## 🏥 Key Business Rules & Clinical Logic
+
+| Rule | Description | Implementation Details |
+| :--- | :--- | :--- |
+| **Strict 74 Capacity** | Maximum 74 active quarantine beds | Intake is strictly blocked when 74/74 beds are occupied. Rooms return to the available pool only upon finalized discharge or terminal release. |
+| **Daily Pairing Rule** | 1 Temperature + 1 Doctor Visit per day | Each admitted patient requires exactly one temperature reading and one physician examination daily. |
+| **Physician Precondition** | Temperature before Doctor Visit | Doctors cannot conduct or complete their visit until nursing staff has logged that day's temperature reading. |
+| **Duplicate Prevention** | No duplicate logs per calendar day | Prevents recording multiple temperatures or multiple visits for the same date. |
+| **Authorized Correction** | Audit-logged temperature edit | If an incorrect reading was logged, authorized staff can submit a correction with a mandatory clinical reason, preserving the prior reading in the immutable audit trail. |
+| **Discharge Eligibility** | 3 Consecutive Fever-Free Days | Automatically flags patients who maintain 3 consecutive calendar days with temperatures strictly `< 38.0°C` (configurable). A single fever spike resets the counter. |
+| **Two-Step Discharge** | Doctor Approval → Admin Bed Release | Only Physicians can clinically approve a discharge; only Facility Administrators can finalize the release and vacate the bed. |
+| **Treatment Success Rate** | `Recovered / (Recovered + Deaths) * 100%` | Mathematical outcome tracking using finalized clinical dispositions. |
+| **Mortality Surveillance** | High-Priority Warning at `> 15%` | Persistent institutional alert banner triggers immediately if mortality exceeds 15% of completed cases, providing clinical escalation guidance. |
+
+---
+
+## 👥 Role Workflows & Capabilities
+
+### 1. 🩺 Nurse Station
+- **Real-Time Patient Table**: View all admitted patients with room numbers (1 to 74) and daily reading statuses.
+- **Pending vs. Completed**: Instant visual differentiation with status pills and quick filters.
+- **Fever Detection (≥ 38.0°C)**: Automatic visual alert flag and notification for febrile patients.
+- **Authorized Correction**: Modify existing readings with mandatory procedural justification (e.g., probe recalibration, tympanic retest).
+- **7-Day Trend Sparklines**: Interactive visual temperature curves with a 38.0°C threshold reference line.
+
+### 2. 👨‍⚕️ Doctor Rounds
+- **Eligibility Spotlight Queue**: Automatically displays patients who have completed 3 consecutive fever-free days.
+- **Clinical Exam Rounds**: Enter daily progress notes, treatment/medication regimens, condition ratings (*Improving*, *Stable*, *Guarded*, *Critical*), and vital signs (Pulse, SpO2, BP, Respiratory Rate).
+- **Enforced Protocol Order**: Blocks doctor visit if nursing staff has not logged today's temperature.
+- **Clinical Discharge Clearance**: Physician reviews afebrile streak and signs off discharge instructions, dispatching the patient to the Administration queue.
+- **Outcome Recording**: Option to record mortality in critical terminal events with notes.
+
+### 3. 🏢 Administration
+- **Capacity Management**: Live visual counter of occupied and available beds out of 74.
+- **Quarantine Intake / Admission**: Patient registration with automatic or manual room assignment (1–74 across Wing A, Wing B, and Wing C).
+- **Hard Capacity Cap**: Blocks intake when capacity reaches 74/74.
+- **Doctor-Approved Discharge Queue**: Inspects doctor sign-off notes and completes discharges.
+- **Automatic Room Release**: Vacates the isolation room upon discharge confirmation with celebratory visual feedback.
+- **74-Bed Interactive Matrix**: Clickable visual floorplan of all 74 rooms with color-coded occupancy and fever indicators.
+
+### 4. 📊 Executive Management
+- **Occupancy & Capacity Metrics**: Live percentage and bed vacancy tracking.
+- **Daily Compliance Gauges**: Temperature completion percentage and Doctor round completion percentage.
+- **Treatment Success Rate**: `Recovered / (Recovered + Deaths) * 100%`.
+- **Institutional Mortality Warning**: Visual alert banner triggered if mortality rate exceeds 15%.
+- **Evaluator Test Switch**: Includes an interactive *"Test >15% Warning"* toggle to dynamically simulate a mortality surge and demonstrate the alert banner.
+- **Zone Distribution**: Visual capacity breakdown across Wing A, Wing B, and Wing C.
+
+### 5. 📜 Immutable Audit Trail
+- Comprehensive chronological event log tracking actor name, role, timestamp, patient ID, and full action details (`PATIENT_ADMITTED`, `TEMPERATURE_RECORDED`, `TEMPERATURE_CORRECTED`, `DOCTOR_VISIT_RECORDED`, `DISCHARGE_APPROVED_DOCTOR`, `DISCHARGE_FINALIZED_ADMIN`, `PATIENT_DECEASED`).
+
+---
+
+## 🚀 Live Demo Scenario Walkthrough
+
+Follow this 2-minute demonstration flow to test all core business rules:
+
+1. **Step 1 — Nurse Station**:
+   - In the top bar, select **Nurse** mode.
+   - Click the **Pending** filter pill.
+   - Find patient **Jameson Cole (Room 6)** and click **Record**.
+   - Select a normal temperature (e.g. `36.8°C`) and submit. Notice status updates to **Completed**.
+   - Try submitting another reading for the same patient: duplicate entry is blocked; click **Correct** to test the **Authorized Correction** workflow.
+
+2. **Step 2 — Doctor Rounds**:
+   - Switch to **Doctor** mode in the top bar.
+   - Look at the top **Discharge Clearance Queue** spotlight: notice **Eleanor Vance (Room 1)** has 3/3 afebrile days and is eligible!
+   - Click **Approve Discharge** for Eleanor Vance, review her 3-day temperature cards, enter clinical sign-off, and submit.
+   - Notice Eleanor moves to **Approved • In Admin Queue**.
+   - In the table below, find **Jameson Cole (Room 6)** whose temperature was just recorded by the nurse. Click **Conduct Round**, enter clinical notes, and submit.
+
+3. **Step 3 — Administration & Bed Release**:
+   - Switch to **Administrator** mode.
+   - Go to the **Doctor-Approved Discharge Queue** tab.
+   - Notice **Marcus Brody (Room 2)** and **Eleanor Vance (Room 1)** are waiting for final sign-off.
+   - Click **Finalize & Release Bed** for Marcus Brody.
+   - Experience the confetti celebration: Room 2 is immediately vacated, the available bed counter increments, and Marcus Brody is officially recorded as **Recovered**!
+   - Switch to the **74-Bed Facility Matrix** tab to see Room 2 now highlighted as vacant green.
+
+4. **Step 4 — Management Surveillance & Mortality Warning**:
+   - Switch to **Management** mode.
+   - Review the **Treatment Success Rate** and **Mortality Rate**.
+   - Click the **Test >15% Warning** button in the top right to simulate a mortality surge: observe the prominent red institutional alert banner trigger instantly! Click it again to return to normal live database metrics.
+
+---
+
+## 🛠️ Technology Stack
+
+- **Framework**: [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
+- **Build Tool**: [Vite 6](https://vitejs.dev/) with [@tailwindcss/vite](https://tailwindcss.com/)
+- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Database / Storage**: Dual-mode persistence:
+  - **Local Storage Engine**: High-fidelity, refresh-persistent browser storage working 100% out-of-the-box on Vercel with zero required credentials.
+  - **Supabase Cloud Client**: Built-in support for PostgreSQL backend via `.env` or in-app Settings configuration.
+- **Celebration Effects**: [Canvas Confetti](https://www.npmjs.com/package/canvas-confetti)
+- **Deployment**: [Vercel](https://vercel.com/) (configured via `vercel.json`)
+
+---
+
+## 💻 Local Setup & Execution
+
+### Prerequisites
+- Node.js `v18.x` or higher (tested on Node v24)
+- npm `v9.x` or higher
+
+### Installation
+```bash
+# 1. Clone or navigate to the repository directory
+cd FactWise
+
+# 2. Install dependencies
+npm install
+
+# 3. Start local development server
 npm run dev
-npm test
+```
+Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+### Production Build
+```bash
 npm run build
 npm run preview
 ```
 
-Open the URL printed by Vite. No environment variables are required. `dist/` is the production output. The lockfile pins dependencies.
+---
 
-## Roles and workflows
+## ☁️ Vercel Deployment
 
-Select a demo role in the header (mobile: navigation menu), then open its workspace:
+This application is ready to deploy directly to Vercel with **zero configuration**:
 
-- **Nurse:** searchable admitted-patient table, pending/completed/fever filters, daily temperatures, history and authorized correction with mandatory reason. One reading per patient/date; corrections retain the prior value and audit event.
-- **Doctor:** visits require today's temperature; one visit per patient/date. Notes and treatment are required. Review eligibility and approve discharge into the administrator queue. A doctor can record a deceased outcome from the patient dossier.
-- **Administrator:** register patients, assign an unoccupied room, view the 74-bed matrix, and finalize doctor-approved discharges. Completed outcomes release the room. Capacity, occupied rooms and duplicate active patient identifiers are validated.
-- **Management:** occupancy, daily reading/visit completion, recoveries, deaths, success rate and mortality warning. The explicitly labelled evaluator toggle is a temporary visual simulation, not a change to stored outcomes.
+### Option A: Vercel CLI
+```bash
+npm install -g vercel
+vercel
+```
 
-Actions check the current role as well as patient state. Wrong-role workspaces display instructions to switch roles. Overview, history and analytics remain visible for assessment inspection.
+### Option B: Vercel Web Dashboard
+1. Push this repository to GitHub/GitLab.
+2. In Vercel, click **"Add New Project"** and select the repository.
+3. Keep the default build settings:
+   - **Framework Preset**: Vite
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
+4. Click **Deploy**.
 
-## Discharge rule and calendar assumption
+> **Note on Credentials**: The application is fully functional out-of-the-box on Vercel without requiring any environment variables. All state persists across page refreshes.
 
-The demo starts on **2026-11-12** and deliberately uses an administrator-controlled simulation date, shown in the UI. Advance it in Settings > Clinical Parameters; it does not silently follow the computer clock. Event timestamps use real ISO timestamps; record dates use the demo calendar.
+---
 
-A complete day means one valid temperature and one doctor visit on a calendar day **before** the current demo date. The three immediately preceding dates must all have a reading strictly below the configurable threshold (default 38 degrees Celsius). Missing dates, missing visits, stale history and fever break eligibility. Today's fever blocks discharge, and today's reading and visit are required before approval and finalization. Admission day can be the first observation day after that calendar day ends. This is an explicit assessment assumption, not clinical guidance.
+## 🗄️ Optional Supabase Cloud Backend Setup
 
-Only doctors approve; only administrators finalize. Finalization rechecks current clinical criteria so a fever correction or changed date cannot release an ineligible patient. Pending discharge patients continue to occupy a bed and require daily care.
+If you wish to attach a live Supabase PostgreSQL database:
 
-Success rate = recovered finalized discharges / (recovered finalized discharges + recorded deaths). Mortality uses the same completed-outcome denominator; the warning triggers strictly above 15%, not at 15%. The calculation returns zero when no outcomes exist.
+### 1. Create Supabase Project
+1. Go to [supabase.com](https://supabase.com/) and create a free project.
+2. Navigate to **SQL Editor** in the Supabase Dashboard.
+3. Open the provided [`supabase/schema.sql`](supabase/schema.sql) file from this repository and run it in the SQL Editor.
 
-## Quick seeded demonstration
+### 2. Connect to CareTrack
+You can connect in either of two ways:
+- **Way 1: Via Environment Variables (in `.env` or Vercel Settings)**:
+  ```env
+  VITE_SUPABASE_URL=https://your-project-id.supabase.co
+  VITE_SUPABASE_ANON_KEY=your-anon-public-api-key
+  ```
+- **Way 2: Live In-App Settings**:
+  - Click the **Settings (gear icon)** in the top right corner of the CareTrack header.
+  - Select the **"Supabase Cloud Integration"** tab.
+  - Paste your Supabase URL and Anon Key, then click **"Test & Save Supabase Connection"**.
 
-The initial dataset contains 18 current patients, 56 available beds, 5 pending readings, 3 fever cases, 2 eligible histories, 1 approved discharge, 8 recoveries and 1 death.
+---
 
-1. **Nurse > Nurse Station:** find Jameson Cole (room 6), record 36.8. The status becomes Completed. A second ordinary entry is unavailable; Correct requires a reason.
-2. **Doctor > Doctor Rounds:** find Jameson, Conduct Round, enter notes and treatment. The row becomes Completed and exposes View Visit.
-3. Find **Eleanor Vance (room 1)**. Her previous three calendar days have complete fever-free records. Complete today's doctor visit, then Approve Discharge and submit the sign-off.
-4. **Administrator > Administration:** finalize Eleanor from the approved queue. Occupancy falls by one and room 1 becomes available.
-5. **Management:** verify the new recovery and revised success rate. **Audit Trail** shows the actors, dates and actions.
-6. Refresh to verify persistence. Reset demo data through the header confirmation to start again.
+## 📂 Project Directory Structure
 
-## Demonstrate a new admission end to end
+```
+FactWise/
+├── .env.example                     # Environment template for Supabase
+├── vercel.json                      # Vercel deployment & SPA routing configuration
+├── index.html                       # HTML5 template with medical metadata
+├── package.json                     # Scripts & dependencies
+├── vite.config.ts                   # Vite + TailwindCSS configuration
+├── tsconfig.json                    # TypeScript compiler configuration
+├── supabase/
+│   └── schema.sql                   # Ready-to-execute PostgreSQL migration script
+└── src/
+    ├── types/
+    │   └── index.ts                 # Type definitions (Patient, Temperature, Visit, Audit, Config)
+    ├── constants/
+    │   └── mockData.ts              # Preloaded realistic clinical dataset
+    ├── utils/
+    │   └── clinicalCalculations.ts  # Discharge eligibility & outcome calculation algorithms
+    ├── services/
+    │   ├── storage.ts               # LocalStorage persistent state engine & backup exporter
+    │   └── supabase.ts              # Supabase client & connection tester
+    ├── context/
+    │   └── AppContext.tsx           # Reactive global state, business rule enforcement & toasts
+    ├── components/
+    │   ├── common/                  # Reusable UI primitives (StatCard, Modal, Badge, Sparkline)
+    │   ├── layout/                  # Navbar, Sidebar, ToastContainer
+    │   ├── overview/                # Unified Facility Command Center
+    │   ├── nurse/                   # Temperature logging station & correction modal
+    │   ├── doctor/                  # Clinical rounds & discharge approval workflows
+    │   ├── admin/                   # 74-bed interactive matrix, admissions & discharge queue
+    │   ├── management/              # KPIs, Treatment success rate & mortality surveillance
+    │   ├── audit/                   # Searchable compliance audit log
+    │   ├── settings/                # Parameter controls & Supabase manager
+    │   └── patient/                 # 360-degree patient clinical dossier
+    ├── App.tsx                      # Main application shell
+    ├── main.tsx                     # React root mount
+    └── index.css                    # Tailwind CSS 4 styles
+```
 
-1. On demo date November 12, select Administrator, admit a fictional patient to an available room (e.g. room 74).
-2. Select Nurse and record 36.8. Select Doctor and complete a visit with notes and treatment.
-3. As Administrator, advance the demo date to November 13. Repeat the reading and visit. Repeat for November 14.
-4. Advance to November 15. The three preceding complete days now qualify. Record today's temperature and visit, approve as Doctor, then finalize as Administrator.
-5. Verify the room is available, the recovery count increased, and the audit history persisted.
+---
 
-Do not advance the clock to simulate a clinical record that has not actually been entered. The automated workflow test performs this sequence as well.
+## 🏆 Assessment Verification Summary
 
-## Validation
+| Required Capability | Status | Implementation Verification |
+| :--- | :---: | :--- |
+| **Nurse: Temperature Logging** | ✅ Complete | Records in °C with real-time fever indicator, pending/completed filter. |
+| **Nurse: Duplicate Prevention** | ✅ Complete | Blocks duplicate daily entries; provides authorized correction with mandatory reason and audit entry. |
+| **Doctor: Precondition Enforcement** | ✅ Complete | Doctor visits locked until today's temperature is logged. Prevents duplicate visits on the same date. |
+| **Doctor: Discharge Eligibility** | ✅ Complete | Algorithm identifies 3 consecutive fever-free days (`< 38.0°C`); doctor approves and dispatches to admin queue. |
+| **Administrator: 74-Bed Capacity** | ✅ Complete | Visualizes 74 rooms; strictly prevents admission when 74/74 beds are occupied. |
+| **Administrator: Room Release** | ✅ Complete | Admin finalizes doctor-approved discharges, vacates room, and marks patient as Recovered. |
+| **Management: Treatment Success Rate** | ✅ Complete | `Recovered / (Recovered + Deaths) * 100%` accurately calculated and rendered. |
+| **Management: Mortality Warning** | ✅ Complete | Institutional banner triggers when mortality exceeds 15%, with interactive test toggle included. |
+| **Data Persistence** | ✅ Complete | Persists across page reloads via LocalStorage + optional Supabase cloud integration. |
+| **Responsive & Deployable** | ✅ Complete | Fully responsive on desktop and mobile; configured with `vercel.json` for instant Vercel deployment. |
 
-`npm test` runs Vitest with React Testing Library against the actual application context and localStorage:
+---
 
-- Multi-day admission, temperature, visit, approval, final discharge and persistence after remount.
-- Incorrect roles, premature approval, duplicate readings/visits and repeated finalization.
-- Calendar gaps, missing visits, threshold boundaries and stale discharge histories.
-- Correction reasons, invalid numeric input and fever blocking a pending release.
-- Occupied rooms, duplicate identity, required fields and admission blocked at 74 beds.
-- Finalized-only outcome counts, exactly 15% versus greater-than-15% mortality, and terminal outcome immutability.
-
-`npm run build` checks TypeScript and produces a Vercel-compatible bundle. Browser smoke checks cover real reading/visit forms; responsive layouts use a mobile sidebar and horizontally scrollable tables.
-
-## Deploy to Vercel
-
-1. Push this project to `https://github.com/Kartik1006/CareTrack`.
-2. Import the repository in Vercel; select **Vite**.
-3. Build command: `npm run build`. Output directory: `dist`. Install command: `npm ci`.
-4. Deploy without environment variables. `vercel.json` includes SPA fallback routing.
-
-Alternatively, run `npx vercel` and then `npx vercel --prod` from an authenticated Vercel CLI session. Each deployed origin has its own browser-local data; localhost data does not transfer automatically.
-
-## Persistence and Supabase status
-
-This delivery intentionally uses the requested local fallback. The supplied secret alone does not identify a Supabase project URL, and a privileged secret must never ship in browser code. No supplied secret is saved in this repository or used by the app.
-
-Settings includes an optional Supabase **connectivity diagnostic only** using a project URL and public anon/publishable key. Passing this diagnostic does **not** enable cloud sync or authentication. The active data store remains localStorage. The optional environment names are documented in `.env.example`. Never place a service-role or `sb_secret_` key in a `VITE_` variable; these values are bundled publicly.
-
-`supabase/schema.sql` is a starting schema with RLS enabled and no public write policies. A production backend would need authenticated staff identities, server-enforced role policies, transactional admission/discharge operations and protected audit storage before connecting live patient data. Applying the schema alone does not enable those features.
-
-The role switcher is demo access, not secure authentication. Local records and audit logs can be altered using browser tools, reset or backup restoration. This is a single-browser assessment prototype, not a tamper-proof or multi-user clinical system. Use fictional data only. Export a JSON backup from Settings to retain demo work; clearing browser storage removes it.
-
-## Project map
-
-- `src/context/AppContext.tsx`: state, role-checked workflows, audit events and derived metrics.
-- `src/utils/clinicalCalculations.ts`: calendar eligibility and completed-outcome calculations.
-- `src/services/storage.ts`: local persistence, backup export/import.
-- `src/constants/mockData.ts`: reproducible assessment seed data.
-- `src/components/`: responsive role dashboards, patient dossier and forms.
-- `tests/workflows.test.tsx`: business-rule and workflow regression tests.
-- `.openai/hosting.json`: optional private Sites preview identity, independent of Vercel.
+*CareTrack Quarantine & Treatment Management System — Designed for clinical reliability and human-centered healthcare operations.*

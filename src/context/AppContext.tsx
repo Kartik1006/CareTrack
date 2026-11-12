@@ -738,6 +738,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // Reset to Demo
   const resetToDemo = () => {
+    if (userRole !== 'admin') { reject('Only administrators can reset facility data.'); return; }
     StorageService.resetToDemo();
     setPatients(StorageService.getPatients());
     setTemperatures(StorageService.getTemperatures());

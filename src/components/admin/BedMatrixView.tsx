@@ -108,7 +108,7 @@ export const BedMatrixView: React.FC<BedMatrixViewProps> = ({
 
       {/* Grid of Beds */}
       <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-2.5">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(68px,1fr))] gap-2.5">
           {filteredBeds.map((bed) => {
             const patient = bed.patientId ? getPatientById(bed.patientId) : undefined;
             const todayTemp = patient ? getTodayTemperatureRecord(patient.id) : undefined;

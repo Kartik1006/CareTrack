@@ -1,344 +1,41 @@
-import React from 'react';
-import {
-  Activity,
-  Thermometer,
-  Stethoscope,
-  Building2,
-  Award,
-  AlertTriangle,
-  CheckCircle2,
-  ShieldCheck,
-  Bed,
-  HeartPulse,
-} from 'lucide-react';
+import { Activity, ArrowRight, BedDouble, CheckCircle2, ClipboardList, HeartPulse, ShieldCheck, Stethoscope, Thermometer, TriangleAlert } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { ROLE_DETAILS, type NavTabId } from '../../constants/roles';
 import { StatCard } from '../common/StatCard';
-import type { NavTabId } from '../layout/Sidebar';
-
-interface FacilityOverviewProps {
-  onNavigateTab: (tab: NavTabId) => void;
-  onSelectPatient: (patientId: string) => void;
-}
-
-export const FacilityOverview: React.FC<FacilityOverviewProps> = ({
-  onNavigateTab,
-}) => {
-  const {
-    config,
-    occupiedBedsCount,
-    availableBedsCount,
-    isCapacityFull,
-    todayTemperatureStats,
-    todayDoctorVisitStats,
-    outcomeMetrics,
-    pendingAdminDischarges,
-    admittedPatients,
-    getPatientEligibility,
-    auditLogs,
-    setUserRole,
-  } = useApp();
-
-  const occupancyRate = Number(((occupiedBedsCount / config.facilityMaxCapacity) * 100).toFixed(1));
-
-  // Eligible for discharge
-  const eligiblePatients = admittedPatients.filter(
-    (p) => getPatientEligibility(p).isEligible && p.status === 'admitted'
-  );
-
-  return (
-    <div className="space-y-6">
-      {/* Hero Welcome Banner */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-teal-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-700/60">
-        <div className="relative z-10 max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30 text-xs font-semibold mb-3">
-            <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
-            Active Quarantine & Treatment Operations
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white leading-tight">
-            CareTrack Central Command
-          </h1>
-          <p className="mt-2 text-sm text-slate-300 leading-relaxed max-w-2xl">
-            Integrated clinical monitoring system for {config.facilityMaxCapacity}-bed quarantine isolation facility.
-            Digitizing daily nurse temperature logs, physician rounds, 3-day fever-free discharge clearances, and bed turnover.
-          </p>
-
-          {/* Quick Role Jump Buttons */}
-          <div className="mt-6 flex flex-wrap items-center gap-2.5">
-            <button
-              onClick={() => {
-                setUserRole('nurse');
-                onNavigateTab('nurse');
-              }}
-              className="px-3.5 py-2 text-xs font-bold rounded-xl bg-teal-600 hover:bg-teal-500 text-white shadow-md shadow-teal-500/20 transition-all flex items-center gap-2"
-            >
-              <Thermometer className="w-4 h-4" />
-              <span>Nurse Station ({todayTemperatureStats.pending} Pending)</span>
-            </button>
-            <button
-              onClick={() => {
-                setUserRole('doctor');
-                onNavigateTab('doctor');
-              }}
-              className="px-3.5 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-500/20 transition-all flex items-center gap-2"
-            >
-              <Stethoscope className="w-4 h-4" />
-              <span>Doctor Rounds ({eligiblePatients.length} Eligible)</span>
-            </button>
-            <button
-              onClick={() => {
-                setUserRole('admin');
-                onNavigateTab('admin');
-              }}
-              className="px-3.5 py-2 text-xs font-bold rounded-xl bg-slate-700 hover:bg-slate-600 text-white shadow-md transition-all flex items-center gap-2"
-            >
-              <Building2 className="w-4 h-4" />
-              <span>Admin Bed Matrix ({availableBedsCount} Open)</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Decorative background element */}
-        <div className="absolute right-0 bottom-0 translate-x-12 translate-y-12 opacity-10 pointer-events-none">
-          <Activity className="w-96 h-96 text-teal-400" />
-        </div>
-      </div>
-
-      {/* Critical Mortality Warning Banner if >15% */}
-      {outcomeMetrics.isMortalityWarning && (
-        <div className="p-4 bg-rose-50 border border-rose-300 rounded-2xl flex items-center justify-between text-rose-900 text-sm">
-          <div className="flex items-center gap-3">
-            <span className="p-2 bg-rose-600 text-white rounded-xl font-bold text-xs">
-              MORTALITY ALERT {outcomeMetrics.mortalityRate}%
-            </span>
-            <div>
-              <p className="font-bold">Institutional Mortality Warning Active</p>
-              <p className="text-xs text-rose-700">
-                Facility completed outcomes mortality ({outcomeMetrics.mortalityRate}%) exceeds the 15% clinical alert threshold.
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={() => {
-              setUserRole('management');
-              onNavigateTab('management');
-            }}
-            className="px-3 py-1.5 text-xs font-bold rounded-lg bg-rose-600 text-white hover:bg-rose-700"
-          >
-            Open Management Audit
-          </button>
-        </div>
-      )}
-
-      {/* Key Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        {/* Occupancy */}
-        <StatCard
-          title="Bed Capacity"
-          value={`${occupiedBedsCount} / ${config.facilityMaxCapacity}`}
-          subtitle={`${occupancyRate}% Quarantine Occupancy`}
-          icon={<Bed className="w-5 h-5" />}
-          color={isCapacityFull ? 'rose' : occupiedBedsCount >= 65 ? 'amber' : 'teal'}
-          badge={`${availableBedsCount} Vacant`}
-          onClick={() => {
-            setUserRole('admin');
-            onNavigateTab('admin');
-          }}
-        />
-
-        {/* Daily Temperature Status */}
-        <StatCard
-          title="Daily Temp Rounds"
-          value={`${todayTemperatureStats.completed} / ${todayTemperatureStats.totalRequired}`}
-          subtitle={`${todayTemperatureStats.completionRate}% completed today`}
-          icon={<Thermometer className="w-5 h-5" />}
-          color={todayTemperatureStats.pending > 0 ? 'amber' : 'emerald'}
-          badge={todayTemperatureStats.pending > 0 ? `${todayTemperatureStats.pending} Left` : '100%'}
-          onClick={() => {
-            setUserRole('nurse');
-            onNavigateTab('nurse');
-          }}
-        />
-
-        {/* Doctor Clinical Visits */}
-        <StatCard
-          title="Doctor Rounds"
-          value={`${todayDoctorVisitStats.completed} / ${todayDoctorVisitStats.totalRequired}`}
-          subtitle={`${todayDoctorVisitStats.completionRate}% rounds conducted`}
-          icon={<Stethoscope className="w-5 h-5" />}
-          color="indigo"
-          badge={todayDoctorVisitStats.pending > 0 ? `${todayDoctorVisitStats.pending} Left` : '100%'}
-          onClick={() => {
-            setUserRole('doctor');
-            onNavigateTab('doctor');
-          }}
-        />
-
-        {/* Treatment Success Rate */}
-        <StatCard
-          title="Treatment Success Rate"
-          value={`${outcomeMetrics.treatmentSuccessRate}%`}
-          subtitle={`${outcomeMetrics.totalRecovered} Recoveries • ${outcomeMetrics.totalDeaths} Deaths`}
-          icon={<HeartPulse className="w-5 h-5" />}
-          color="emerald"
-          badge="Outcome KPI"
-          onClick={() => {
-            setUserRole('management');
-            onNavigateTab('management');
-          }}
-        />
-      </div>
-
-      {/* Action Center Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left: Pending Actions / Clearances */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-            <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-              <Award className="w-4 h-4 text-emerald-600" />
-              Actionable Quarantine Clearances
-            </h3>
-            <span className="text-xs font-semibold text-slate-500">
-              {eligiblePatients.length + pendingAdminDischarges.length} in pipeline
-            </span>
-          </div>
-
-          {/* Doctor approval ready */}
-          {eligiblePatients.length > 0 && (
-            <div className="p-3.5 bg-emerald-50 rounded-xl border border-emerald-200/80 space-y-2">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-emerald-900 flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  {eligiblePatients.length} Patients Ready for Doctor Sign-off
-                </span>
-                <span className="font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full text-[11px]">
-                  3 Days Afebrile ✓
-                </span>
-              </div>
-              <p className="text-[11px] text-emerald-800">
-                Patients have satisfied the afebrile criteria (&lt; {config.feverThreshold}°C). Attending physician can approve discharge.
-              </p>
-              <div className="pt-1 flex items-center justify-end">
-                <button
-                  onClick={() => {
-                    setUserRole('doctor');
-                    onNavigateTab('doctor');
-                  }}
-                  className="text-xs font-bold text-emerald-700 hover:text-emerald-900 flex items-center gap-1"
-                >
-                  Go to Doctor Rounds →
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Admin discharge queue */}
-          {pendingAdminDischarges.length > 0 && (
-            <div className="p-3.5 bg-purple-50 rounded-xl border border-purple-200 space-y-2">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-purple-900 flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-purple-600" />
-                  {pendingAdminDischarges.length} Patients in Administrator Bed Release Queue
-                </span>
-                <span className="font-semibold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full text-[11px]">
-                  Doctor Approved
-                </span>
-              </div>
-              <p className="text-[11px] text-purple-800">
-                Physicians have cleared these patients. Finalizing discharge will free rooms back to capacity.
-              </p>
-              <div className="pt-1 flex items-center justify-end">
-                <button
-                  onClick={() => {
-                    setUserRole('admin');
-                    onNavigateTab('admin');
-                  }}
-                  className="text-xs font-bold text-purple-700 hover:text-purple-900 flex items-center gap-1"
-                >
-                  Open Admin Discharge Queue →
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Active fever alerts */}
-          {todayTemperatureStats.feverCount > 0 && (
-            <div className="p-3.5 bg-rose-50 rounded-xl border border-rose-200 space-y-1.5">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-rose-900 flex items-center gap-1.5">
-                  <AlertTriangle className="w-4 h-4 text-rose-600" />
-                  {todayTemperatureStats.feverCount} Active Fever Cases Detected Today
-                </span>
-                <span className="font-bold text-rose-700 bg-rose-100 px-2 py-0.5 rounded-full text-[11px]">
-                  ≥ {config.feverThreshold}°C
-                </span>
-              </div>
-              <p className="text-[11px] text-rose-800">
-                Patients require antipyretic evaluation, vital monitoring, and streak reset.
-              </p>
-              <div className="pt-1 flex items-center justify-end">
-                <button
-                  onClick={() => {
-                    setUserRole('nurse');
-                    onNavigateTab('nurse');
-                  }}
-                  className="text-xs font-bold text-rose-700 hover:text-rose-900 flex items-center gap-1"
-                >
-                  Review Fever Patients →
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Right: Live Institutional Audit Activity */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
-              <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                <Activity className="w-4 h-4 text-teal-600" />
-                Live Audit Activity Feed
-              </h3>
-              <button
-                onClick={() => onNavigateTab('audit')}
-                className="text-xs text-teal-600 hover:text-teal-800 font-semibold"
-              >
-                View Full Log ({auditLogs.length}) →
-              </button>
-            </div>
-
-            <div className="space-y-3">
-              {auditLogs.slice(0, 5).map((log) => {
-                const timeStr = new Date(log.timestamp).toLocaleTimeString([], {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                });
-                return (
-                  <div key={log.id} className="flex items-start gap-3 text-xs">
-                    <span className="font-mono text-[10px] text-slate-400 shrink-0 pt-0.5">
-                      {timeStr}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-slate-800 font-medium leading-tight">
-                        <strong className="font-semibold text-slate-900">{log.actorName}</strong>: {log.details}
-                      </p>
-                      {log.patientName && (
-                        <span className="text-[10px] text-teal-700 block mt-0.5">
-                          Patient: {log.patientName} ({log.patientId})
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span>Facility Status: Normal Quarantine Condition</span>
-            <span className="font-mono text-emerald-600 font-bold">Online ✓</span>
-          </div>
-        </div>
-      </div>
+interface Props { onNavigateTab: (tab: NavTabId) => void; onSelectPatient: (id: string) => void; }
+export function FacilityOverview({onNavigateTab, onSelectPatient}: Props) {
+  const {userRole, config, occupiedBedsCount, availableBedsCount, todayTemperatureStats: temps, todayDoctorVisitStats: visits, outcomeMetrics: outcomes, admittedPatients, pendingAdminDischarges, hasTemperatureToday, hasDoctorVisitToday, getTodayTemperatureRecord, getPatientEligibility, auditLogs, bedsMatrix} = useApp();
+  const role = ROLE_DETAILS[userRole];
+  const occupancy = Math.round(occupiedBedsCount / 74 * 100);
+  const eligible = admittedPatients.filter(p => getPatientEligibility(p).isEligible);
+  const queue = userRole === 'nurse' ? admittedPatients.filter(p => !hasTemperatureToday(p.id)) : userRole === 'doctor' ? admittedPatients.filter(p => hasTemperatureToday(p.id) && !hasDoctorVisitToday(p.id)) : userRole === 'admin' ? pendingAdminDischarges : admittedPatients.filter(p => (getTodayTemperatureRecord(p.id)?.temperature ?? 0) >= config.feverThreshold);
+  const queueLabel = userRole === 'nurse' ? 'Patients awaiting a reading' : userRole === 'doctor' ? 'Patients ready for a visit' : userRole === 'admin' ? 'Approved discharge requests' : 'Patients with fever today';
+  const taskLabel = userRole === 'nurse' ? 'Start temperature rounds' : userRole === 'doctor' ? 'Continue clinical rounds' : userRole === 'admin' ? 'Manage admissions & beds' : 'Explore outcome insights';
+  return <div className="overview-page">
+    <section className="overview-heading"><div><div className="eyebrow">YOUR FACILITY, AT A GLANCE</div><h1>Every patient. Every day.</h1><p>A clear view of care, capacity and what needs your attention.</p></div><span className="facility-status"><span className="status-dot"/>Facility active</span></section>
+    {outcomes.isMortalityWarning && <div className="clinical-alert" role="alert"><TriangleAlert size={20}/><div><strong>Mortality threshold exceeded</strong><p>{outcomes.mortalityRate}% of completed outcomes are deaths. Management review is required.</p></div></div>}
+    <div className="metric-grid">
+      <StatCard title="Occupied beds" value={`${occupiedBedsCount} / 74`} subtitle="Current facility occupancy" badge={`${availableBedsCount} available`} icon={<BedDouble size={19}/>} color="teal"/>
+      <StatCard title="Temperature readings" value={`${temps.completed} / ${temps.totalRequired}`} subtitle="Daily observations completed" badge={`${temps.pending} pending`} icon={<Thermometer size={19}/>} color="amber"/>
+      <StatCard title="Doctor visits" value={`${visits.completed} / ${visits.totalRequired}`} subtitle="Daily clinical rounds completed" badge={`${visits.pending} pending`} icon={<Stethoscope size={19}/>} color="indigo"/>
+      <StatCard title="Recovery rate" value={outcomes.totalCompletedOutcomes ? `${outcomes.treatmentSuccessRate}%` : '—'} subtitle={`${outcomes.totalRecovered} recovered · ${outcomes.totalDeaths} deaths`} badge="Completed outcomes" icon={<HeartPulse size={19}/>} color="emerald"/>
     </div>
-  );
-};
+    <section className="shift-banner"><span className={`shift-icon role-${userRole}`}><ClipboardList size={25}/></span><div><span className="eyebrow">{role.label.toUpperCase()} WORKSPACE</span><h2>{userRole === 'management' ? 'The insights behind better care.' : queue.length ? `${queue.length} ${queue.length === 1 ? 'patient needs' : 'patients need'} your attention.` : 'Your immediate queue is clear.'}</h2><p>{role.description}</p></div><button className="primary-action" onClick={() => onNavigateTab(userRole)}>{taskLabel}<ArrowRight size={16}/></button></section>
+    <div className="overview-columns">
+      <section className="dashboard-panel queue-panel"><div className="panel-heading"><div><h2>{queueLabel}</h2><p>Prioritized for your current workspace</p></div><span className="count-pill">{queue.length}</span></div>
+        <div className="priority-list">{queue.slice(0,5).map(p => <button className="priority-row" key={p.id} onClick={() => onSelectPatient(p.id)}><span className="patient-initials">{p.fullName.split(' ').slice(0,2).map(n=>n[0]).join('')}</span><span className="priority-patient"><strong>{p.fullName}</strong><small>{p.id} · {p.zone}</small></span><span className="priority-room">Room <strong>{String(p.roomNumber).padStart(2,'0')}</strong></span><span className={`queue-status ${userRole === 'admin' ? 'ready' : ''}`}>{userRole === 'admin' ? 'Approved' : userRole === 'management' ? 'Fever' : 'Pending'}</span><ArrowRight size={15} className="text-slate-400"/></button>)}
+          {!queue.length && <div className="empty-queue"><CheckCircle2 size={30}/><strong>Nothing waiting here</strong><p>All current tasks in this queue are complete.</p></div>}
+        </div><button className="panel-footer-link" onClick={() => onNavigateTab(userRole)}>Open {role.workspace.toLowerCase()}<ArrowRight size={15}/></button>
+      </section>
+      <section className="dashboard-panel capacity-panel"><div className="panel-heading"><div><h2>Room availability</h2><p>74 single-patient isolation rooms</p></div><BedDouble size={20} className="text-teal-700"/></div><div className="capacity-summary"><div><strong>{availableBedsCount}</strong><span>beds available</span></div><span>{occupancy}% occupied</span></div>
+        <div className="room-mini-grid" aria-label={`${occupiedBedsCount} occupied rooms out of 74`}>{bedsMatrix.map(b=><span key={b.roomNumber} className={b.status === 'discharge_ready' ? 'approved' : b.isOccupied ? 'occupied' : ''} title={`Room ${b.roomNumber}: ${b.isOccupied ? b.patientName : 'Available'}`}/>)}</div>
+        <div className="capacity-legend"><span><i className="occupied"/>Occupied {occupiedBedsCount - pendingAdminDischarges.length}</span><span><i className="approved"/>Approved {pendingAdminDischarges.length}</span><span><i/>Available {availableBedsCount}</span></div>
+        <div className="capacity-note"><ShieldCheck size={16}/><p>{pendingAdminDischarges.length} approved discharge{pendingAdminDischarges.length === 1 ? '' : 's'} awaiting administrator completion.</p></div>
+      </section>
+    </div>
+    <div className="overview-columns lower-panels">
+      <section className="dashboard-panel"><div className="panel-heading"><div><h2>Daily care progress</h2><p>Complete care for every admitted patient</p></div><Activity size={20} className="text-slate-400"/></div><div className="care-progress"><div><span>Temperature readings</span><strong>{temps.completionRate}%</strong></div><progress max="100" value={temps.completionRate} aria-label="Temperature completion"/><div><span>Doctor visits</span><strong>{visits.completionRate}%</strong></div><progress className="indigo" max="100" value={visits.completionRate} aria-label="Doctor visit completion"/></div><div className="clinical-summary"><span><Thermometer size={16}/><strong>{temps.feverCount}</strong> fever cases</span><span><ShieldCheck size={16}/><strong>{eligible.length}</strong> eligible histories</span></div><p className="protocol-note">Discharge requires readings below {config.feverThreshold}°C and doctor visits on each of the previous 3 calendar days, plus today's completed care. Doctor approval precedes administrator release.</p></section>
+      <section className="dashboard-panel"><div className="panel-heading"><div><h2>Recent activity</h2><p>Traceable actions across the care team</p></div><button className="text-link" onClick={() => onNavigateTab('audit')}>View all<ArrowRight size={14}/></button></div><div className="activity-list">{[...auditLogs].sort((a,b)=>b.timestamp.localeCompare(a.timestamp)).slice(0,4).map(log=><div className="activity-row" key={log.id}><span className="activity-marker"/><div><strong>{log.action.toLowerCase().replaceAll('_',' ')}</strong><p>{log.patientName || 'Facility settings'} · {log.actorName}</p></div><time dateTime={log.timestamp}>{new Date(log.timestamp).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</time></div>)}{!auditLogs.length && <p className="p-5 text-sm text-slate-500">Activity will appear after your first action.</p>}</div></section>
+    </div>
+  </div>;
+}

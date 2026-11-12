@@ -55,7 +55,7 @@ export const ManagementAnalytics: React.FC = () => {
         <div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
             <BarChart3 className="w-7 h-7 text-emerald-600" />
-            Executive Management & Outcome Analytics
+            Outcomes & insights
           </h1>
           <p className="text-sm text-slate-500 mt-1">
             Institutional surveillance: occupancy, daily clinical compliance, treatment success, and mortality threshold monitoring.

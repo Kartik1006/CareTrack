@@ -11,6 +11,7 @@ import {
   AlertCircle,
   CheckCircle2,
   Code2,
+  ExternalLink,
 } from 'lucide-react';
 import { Modal } from '../common/Modal';
 import { useApp } from '../../context/AppContext';
@@ -31,12 +32,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   const [simDate, setSimDate] = useState<string>(config.currentSimulationDate);
 
   useEffect(() => {
-    if (isOpen) { setThreshold(config.feverThreshold); setSimDate(config.currentSimulationDate); }
+    if (isOpen) {
+      setThreshold(config.feverThreshold);
+      setSimDate(config.currentSimulationDate);
+    }
   }, [isOpen, config.feverThreshold, config.currentSimulationDate]);
+
   // Supabase state
   const currentSupabaseSettings = SupabaseService.getSettings();
-  const [supabaseUrl, setSupabaseUrl] = useState(currentSupabaseSettings.url);
-  const [supabaseKey, setSupabaseKey] = useState(currentSupabaseSettings.anonKey);
+  const [supabaseUrl, setSupabaseUrl] = useState(currentSupabaseSettings.url || '');
+  const [supabaseKey, setSupabaseKey] = useState(currentSupabaseSettings.anonKey || '');
   const [isTesting, setIsTesting] = useState(false);
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
   const [copiedSql, setCopiedSql] = useState(false);
@@ -47,12 +52,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
   const handleSaveClinical = (e: React.FormEvent) => {
     e.preventDefault();
-    if (userRole !== 'admin') { showToast('error', 'Administrator required', 'Switch to the Administrator role to change settings.'); return; }
+    if (userRole !== 'admin') {
+      showToast('error', 'Administrator required', 'Switch to the Administrator role to change settings.');
+      return;
+    }
     updateConfig({
       feverThreshold: Number(threshold),
       currentSimulationDate: simDate,
     });
-
     onClose();
   };
 
@@ -69,7 +76,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         anonKey: supabaseKey,
         autoSync: false,
       });
-      showToast('success', 'Connection checked', 'Connection settings saved. Patient data remains local; cloud sync is not enabled.');
+      showToast('success', 'Connection Verified', res.message);
     }
   };
 
@@ -218,17 +225,23 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-600 space-y-2">
               <div className="flex items-center gap-2 font-bold text-slate-900">
                 <Database className="w-4 h-4 text-emerald-600" />
-                <span>Local persistence · optional connectivity diagnostic</span>
+                <span>Supabase Cloud Integration</span>
               </div>
               <p className="leading-relaxed">
-                By default, CareTrack operates with high-fidelity, refresh-persistent local storage so that
-                it runs 100% out-of-the-box when deployed on Vercel without requiring external setup.
+                CareTrack operates with high-fidelity, refresh-persistent local storage out-of-the-box on Vercel,
+                and seamlessly connects to your Supabase PostgreSQL project.
               </p>
-              <p className="leading-relaxed">
-                This diagnostic does not sync patient data or enable authentication. Use only a public key; never a secret key. Optional connection variables:{' '}
-                <code className="bg-slate-200 px-1 py-0.5 rounded text-[11px]">VITE_SUPABASE_URL</code> and{' '}
-                <code className="bg-slate-200 px-1 py-0.5 rounded text-[11px]">VITE_SUPABASE_ANON_KEY</code> in Vercel.
-              </p>
+              <div className="pt-1 flex flex-wrap items-center gap-2">
+                <a
+                  href="https://supabase.com/dashboard/project/kqdsmsvxahnultzmhncl/sql/new"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-[11px] shadow-xs"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>Open Supabase SQL Editor (Run Tables Script)</span>
+                </a>
+              </div>
             </div>
 
             <div className="space-y-3">
@@ -247,11 +260,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                  Supabase Anon Public API Key
+                  Supabase API Key
                 </label>
                 <input
                   type="password"
-                  placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  placeholder="API Key"
                   value={supabaseKey}
                   onChange={(e) => setSupabaseKey(e.target.value)}
                   className="w-full text-xs font-mono px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-teal-500 outline-none"
@@ -282,7 +295,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   disabled={isTesting || !supabaseUrl || !supabaseKey}
                   className="px-4 py-2 text-xs font-bold rounded-xl bg-teal-600 hover:bg-teal-700 text-white shadow-xs disabled:opacity-50"
                 >
-                  {isTesting ? 'Testing Connection...' : 'Test & Save Supabase Connection'}
+                  {isTesting ? 'Testing Connection...' : 'Test & Verify Supabase Connection'}
                 </button>
 
                 <button

@@ -1,5 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
+let openDialogs = 0;
+let priorBodyOverflow = '';
 
 interface ModalProps {
   isOpen: boolean;
@@ -20,21 +22,34 @@ export const Modal: React.FC<ModalProps> = ({
   maxWidth = 'lg',
   icon,
 }) => {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
   useEffect(() => {
+    if (!isOpen) return;
+    const previousFocus = document.activeElement as HTMLElement | null;
+    if (openDialogs++ === 0) { priorBodyOverflow = document.body.style.overflow; document.body.style.overflow = 'hidden'; }
+    const focusables = () => Array.from(dialogRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), a[href], [tabindex="0"]') ?? []).filter(el => el.getAttribute('aria-hidden') !== 'true');
+    focusables()[0]?.focus();
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
+      const dialogs = document.querySelectorAll('[role="dialog"]');
+      if (dialogs[dialogs.length - 1] !== dialogRef.current) return;
+      if (e.key === 'Escape') {
+        e.stopImmediatePropagation(); e.preventDefault(); closeRef.current();
+      }
+      if (e.key === 'Tab') {
+        const elements = focusables(); const first = elements[0]; const last = elements[elements.length - 1];
+        if (e.shiftKey && (document.activeElement === first || !dialogRef.current?.contains(document.activeElement))) { e.preventDefault(); last?.focus(); }
+        if (!e.shiftKey && (document.activeElement === last || !dialogRef.current?.contains(document.activeElement))) { e.preventDefault(); first?.focus(); }
       }
     };
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      window.addEventListener('keydown', handleKeyDown);
-    }
+    window.addEventListener('keydown', handleKeyDown, true);
     return () => {
-      document.body.style.overflow = 'unset';
-      window.removeEventListener('keydown', handleKeyDown);
+      if (--openDialogs === 0) document.body.style.overflow = priorBodyOverflow;
+      window.removeEventListener('keydown', handleKeyDown, true);
+      if (previousFocus?.isConnected) previousFocus.focus();
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -56,14 +71,15 @@ export const Modal: React.FC<ModalProps> = ({
       />
 
       {/* Modal Dialog */}
-      <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+      <div className="flex min-h-full items-center justify-center p-3 sm:p-6 text-center">
         <div
-          className={`relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 w-full ${maxWidthStyles[maxWidth]} animate-in zoom-in-95 duration-200 border border-slate-200`}
+          ref={dialogRef}
+          className={`relative flex flex-col max-h-[calc(100dvh-32px)] overflow-hidden rounded-2xl bg-white text-left shadow-2xl w-full ${maxWidthStyles[maxWidth]} border border-slate-200`}
           role="dialog" aria-modal="true" aria-label={title}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-start justify-between border-b border-slate-100 px-6 py-4 bg-slate-50/60">
+          <div className="flex shrink-0 items-start justify-between gap-3 border-b border-slate-100 px-4 sm:px-6 py-4 bg-slate-50/60">
             <div className="flex items-center gap-3">
               {icon && <div className="p-2 bg-teal-50 text-teal-600 rounded-lg">{icon}</div>}
               <div>
@@ -74,14 +90,14 @@ export const Modal: React.FC<ModalProps> = ({
             <button
               aria-label="Close dialog" type="button"
               onClick={onClose}
-              className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+              className="rounded-lg p-2 shrink-0 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
           {/* Body */}
-          <div className="px-6 py-5 max-h-[78vh] overflow-y-auto">{children}</div>
+          <div className="px-4 sm:px-6 py-5 min-h-0 overflow-y-auto">{children}</div>
         </div>
       </div>
     </div>
