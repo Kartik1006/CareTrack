@@ -11,6 +11,8 @@ import type {
   BedInfo,
 } from '../types';
 import { StorageService } from '../services/storage';
+import { SupabaseService } from '../services/supabase';
+import { DatabaseSyncService } from '../services/database';
 import { getZoneForRoom } from '../constants/mockData';
 import {
   evaluateDischargeEligibility,
@@ -29,6 +31,7 @@ interface AppContextType {
   currentStaffName: string;
   toasts: ToastMessage[];
   selectedPatientId: string | null;
+  isDbConnected: boolean;
 
   // Derived state
   admittedPatients: Patient[];
@@ -134,6 +137,42 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [userRole, setUserRole] = useState<UserRole>('nurse');
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
+  const [isDbConnected, setIsDbConnected] = useState<boolean>(() => SupabaseService.isConfigured());
+
+  // Initial load from Supabase if configured
+  useEffect(() => {
+    let isMounted = true;
+    const loadFromDb = async () => {
+      if (!SupabaseService.isConfigured()) return;
+      try {
+        const remote = await DatabaseSyncService.fetchAll();
+        if (remote && isMounted) {
+          if (remote.patients && remote.patients.length > 0) {
+            setPatients(remote.patients);
+          }
+          if (remote.temperatures) {
+            setTemperatures(remote.temperatures);
+          }
+          if (remote.doctorVisits) {
+            setDoctorVisits(remote.doctorVisits);
+          }
+          if (remote.auditLogs) {
+            setAuditLogs(remote.auditLogs);
+          }
+          if (remote.config) {
+            setConfig(remote.config);
+          }
+          setIsDbConnected(true);
+        }
+      } catch (err) {
+        console.warn('Initial Supabase fetch error, fallback to local storage:', err);
+      }
+    };
+    loadFromDb();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Sync to localStorage
   useEffect(() => {
@@ -189,6 +228,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       details,
     };
     setAuditLogs((prev) => [newLog, ...prev]);
+    DatabaseSyncService.saveAuditLog(newLog);
   };
 
   // Current Staff Name
@@ -405,6 +445,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     };
 
     setPatients((prev) => [newPatient, ...prev]);
+    DatabaseSyncService.savePatient(newPatient);
 
     logAudit(
       'PATIENT_ADMITTED',
@@ -468,6 +509,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       };
 
       setTemperatures((prev) => prev.map((t) => (t.id === existing.id ? updatedRecord : t)));
+      DatabaseSyncService.saveTemperature(updatedRecord);
 
       logAudit(
         'TEMPERATURE_CORRECTED',
@@ -498,6 +540,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     };
 
     setTemperatures((prev) => [newRecord, ...prev]);
+    DatabaseSyncService.saveTemperature(newRecord);
 
     logAudit(
       'TEMPERATURE_RECORDED',
@@ -573,6 +616,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     };
 
     setDoctorVisits((prev) => [newVisit, ...prev]);
+    DatabaseSyncService.saveDoctorVisit(newVisit);
 
     logAudit(
       'DOCTOR_VISIT_RECORDED',
@@ -597,19 +641,18 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (!eligibility.isEligible) return reject(eligibility.reason);
 
 
+    const updatedPatient: Patient = {
+      ...patient,
+      status: 'discharge_pending_admin',
+      dischargeApprovedDate: new Date().toISOString(),
+      dischargeApprovedByDoctor: currentStaffName,
+      dischargeDoctorNotes: doctorNotes,
+    };
+
     setPatients((prev) =>
-      prev.map((p) =>
-        p.id === patientId
-          ? {
-              ...p,
-              status: 'discharge_pending_admin',
-              dischargeApprovedDate: new Date().toISOString(),
-              dischargeApprovedByDoctor: currentStaffName,
-              dischargeDoctorNotes: doctorNotes,
-            }
-          : p
-      )
+      prev.map((p) => (p.id === patientId ? updatedPatient : p))
     );
+    DatabaseSyncService.savePatient(updatedPatient);
 
     logAudit(
       'DISCHARGE_APPROVED_DOCTOR',
@@ -642,18 +685,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (!active(patient)) return reject('Patient already has a completed outcome.');
     const releasedRoom = patient.roomNumber;
 
+    const updatedPatient: Patient = {
+      ...patient,
+      status: 'discharged',
+      outcome: 'recovered',
+      dischargeDate: config.currentSimulationDate,
+    };
+
     setPatients((prev) =>
-      prev.map((p) =>
-        p.id === patientId
-          ? {
-              ...p,
-              status: 'discharged',
-              outcome: 'recovered',
-              dischargeDate: config.currentSimulationDate,
-            }
-          : p
-      )
+      prev.map((p) => (p.id === patientId ? updatedPatient : p))
     );
+    DatabaseSyncService.savePatient(updatedPatient);
 
     logAudit(
       'DISCHARGE_FINALIZED_ADMIN',
@@ -692,20 +734,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (!active(patient)) return reject('Patient already has a completed outcome.');
     const releasedRoom = patient.roomNumber;
 
+    const updatedPatient: Patient = {
+      ...patient,
+      status: 'deceased',
+      outcome: 'deceased',
+      dischargeDate: config.currentSimulationDate,
+      deceasedDate: new Date().toISOString(),
+      deceasedNotes,
+    };
+
     setPatients((prev) =>
-      prev.map((p) =>
-        p.id === patientId
-          ? {
-              ...p,
-              status: 'deceased',
-              outcome: 'deceased',
-              dischargeDate: config.currentSimulationDate,
-              deceasedDate: new Date().toISOString(),
-              deceasedNotes,
-            }
-          : p
-      )
+      prev.map((p) => (p.id === patientId ? updatedPatient : p))
     );
+    DatabaseSyncService.savePatient(updatedPatient);
 
     logAudit(
       'PATIENT_DECEASED',
@@ -732,6 +773,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       reject('Enter a valid date and threshold between 36 and 40°C.'); return;
     }
     setConfig(updated);
+    DatabaseSyncService.saveConfig(updated);
     logAudit('CONFIG_UPDATED', `Threshold: ${updated.feverThreshold}°C; demo date: ${updated.currentSimulationDate}.`);
     showToast('info', 'Configuration Updated', 'System parameters updated.');
   };
@@ -783,6 +825,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         currentStaffName,
         toasts,
         selectedPatientId,
+        isDbConnected,
         admittedPatients,
         pendingAdminDischarges,
         dischargedPatients,

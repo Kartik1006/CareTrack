@@ -119,7 +119,13 @@ export const StorageService = {
     const raw = localStorage.getItem(KEYS.SUPABASE_SETTINGS);
     if (raw) {
       try {
-        return JSON.parse(raw);
+        const parsed = JSON.parse(raw);
+        return {
+          url: parsed.url || import.meta.env.VITE_SUPABASE_URL || '',
+          anonKey: parsed.anonKey || import.meta.env.VITE_SUPABASE_ANON_KEY || '',
+          autoSync: parsed.autoSync !== undefined ? parsed.autoSync : true,
+          isConnected: parsed.isConnected,
+        };
       } catch {
         // fallback
       }
@@ -127,7 +133,7 @@ export const StorageService = {
     return {
       url: import.meta.env.VITE_SUPABASE_URL || '',
       anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
-      autoSync: false,
+      autoSync: Boolean(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY),
     };
   },
 
