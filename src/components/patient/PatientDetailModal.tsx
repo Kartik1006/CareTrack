@@ -85,7 +85,7 @@ export const PatientDetailModal: React.FC<PatientDetailModalProps> = ({
           <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex flex-wrap items-center gap-4">
               <div>
-                <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-bold">
+                <span className="text-xs text-slate-500 uppercase tracking-wider block font-bold">
                   Quarantine Bed
                 </span>
                 <span className="text-base font-bold text-teal-800 font-mono">
@@ -94,7 +94,7 @@ export const PatientDetailModal: React.FC<PatientDetailModalProps> = ({
               </div>
               <div className="h-8 w-px bg-slate-200 hidden sm:block" />
               <div>
-                <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-bold">
+                <span className="text-xs text-slate-500 uppercase tracking-wider block font-bold">
                   Demographics
                 </span>
                 <span className="text-xs font-semibold text-slate-800">
@@ -103,7 +103,7 @@ export const PatientDetailModal: React.FC<PatientDetailModalProps> = ({
               </div>
               <div className="h-8 w-px bg-slate-200 hidden sm:block" />
               <div>
-                <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-bold">
+                <span className="text-xs text-slate-500 uppercase tracking-wider block font-bold">
                   Contact
                 </span>
                 <span className="text-xs text-slate-600 font-medium">
@@ -131,7 +131,7 @@ export const PatientDetailModal: React.FC<PatientDetailModalProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {/* 1. Today's Temperature */}
             <div className="p-3.5 bg-white rounded-xl border border-slate-200 shadow-xs">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">
                 Today's Temperature
               </span>
               {hasTempToday && todayTemp ? (
@@ -146,7 +146,7 @@ export const PatientDetailModal: React.FC<PatientDetailModalProps> = ({
                     {todayTemp.temperature.toFixed(1)}°C
                   </span>
                   <span
-                    className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-md ${
+                    className={`text-xs font-bold uppercase px-2 py-0.5 rounded-md ${
                       todayTemp.isFever ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'
                     }`}
                   >
@@ -165,7 +165,7 @@ export const PatientDetailModal: React.FC<PatientDetailModalProps> = ({
                         setTempModalMode('new');
                         setIsTempModalOpen(true);
                       }}
-                      className="text-[10px] font-bold px-2 py-1 rounded bg-teal-600 text-white"
+                      className="text-xs font-bold px-2.5 py-1 rounded-md bg-teal-600 text-white"
                     >
                       Record Now
                     </button>
@@ -176,7 +176,7 @@ export const PatientDetailModal: React.FC<PatientDetailModalProps> = ({
 
             {/* 2. Today's Doctor Visit */}
             <div className="p-3.5 bg-white rounded-xl border border-slate-200 shadow-xs">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">
                 Today's Doctor Visit
               </span>
               {hasVisitToday && todayVisit ? (
@@ -186,11 +186,11 @@ export const PatientDetailModal: React.FC<PatientDetailModalProps> = ({
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                       Completed
                     </span>
-                    <span className="text-[10px] font-semibold text-slate-500">
+                    <span className="text-xs font-medium text-slate-600">
                       Condition: {todayVisit.conditionSummary}
                     </span>
                   </div>
-                  <p className="text-[11px] text-slate-600 mt-1 truncate">
+                  <p className="text-xs text-slate-600 mt-1 truncate">
                     {todayVisit.clinicalNotes}
                   </p>
                 </div>
@@ -200,7 +200,7 @@ export const PatientDetailModal: React.FC<PatientDetailModalProps> = ({
                   {userRole === 'doctor' && hasTempToday && (
                     <button
                       onClick={() => setIsDoctorVisitOpen(true)}
-                      className="text-[10px] font-bold px-2 py-1 rounded bg-indigo-600 text-white"
+                      className="text-xs font-bold px-2.5 py-1 rounded-md bg-indigo-600 text-white"
                     >
                       Conduct Visit
                     </button>
@@ -211,7 +211,7 @@ export const PatientDetailModal: React.FC<PatientDetailModalProps> = ({
 
             {/* 3. Discharge Streak */}
             <div className="p-3.5 bg-white rounded-xl border border-slate-200 shadow-xs">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">
                 Discharge Afebrile Streak
               </span>
               <div className="flex items-center justify-between">
@@ -219,11 +219,11 @@ export const PatientDetailModal: React.FC<PatientDetailModalProps> = ({
                   {eligibility.consecutiveFeverFreeDays} / {config.quarantineRequiredFeverFreeDays} Days
                 </span>
                 {eligibility.isEligible ? (
-                  <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md">
+                  <span className="text-xs font-bold bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-md">
                     Eligible ✓
                   </span>
                 ) : (
-                  <span className="text-[10px] text-slate-400 font-medium">
+                  <span className="text-xs text-slate-500 font-medium">
                     {config.quarantineRequiredFeverFreeDays - eligibility.consecutiveFeverFreeDays} days remaining
                   </span>
                 )}
@@ -236,7 +236,7 @@ export const PatientDetailModal: React.FC<PatientDetailModalProps> = ({
             <Award className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
             <div>
               <p className="font-bold">Quarantine Protocol & Clinical Assumption:</p>
-              <p className="text-[11px] text-indigo-900 mt-0.5 leading-relaxed">
+              <p className="text-xs text-indigo-900 mt-0.5 leading-relaxed">
                 Eligibility for quarantine discharge requires <strong>3 consecutive complete calendar days</strong> with body temperature strictly below <strong>{config.feverThreshold}°C</strong> without antipyretic suppression.
                 Any single fever spike resets the counter to 0. Clearance must be approved by the Attending Physician and finalized by Administration.
               </p>

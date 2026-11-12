@@ -166,19 +166,19 @@ export const BedMatrixView: React.FC<BedMatrixViewProps> = ({
                 <div className="mt-1 text-left">
                   {bed.isOccupied ? (
                     <>
-                      <p className="text-[11px] font-bold truncate leading-tight text-slate-900">
+                      <p className="text-xs font-bold truncate leading-tight text-slate-900">
                         {bed.patientName}
                       </p>
-                      <p className="text-[10px] text-slate-500 truncate mt-0.5">
+                      <p className="text-xs text-slate-600 font-medium truncate mt-0.5">
                         {todayTemp ? `${todayTemp.temperature}°C` : 'Pending'}
                       </p>
                     </>
                   ) : (
                     <div className="text-center py-1">
-                      <span className="text-[10px] font-semibold text-emerald-700 block">
+                      <span className="text-xs font-bold text-emerald-700 block">
                         Vacant
                       </span>
-                      <span className="text-[9px] text-slate-400 block group-hover:text-emerald-700">
+                      <span className="text-[11px] font-semibold text-emerald-700 block opacity-85 group-hover:opacity-100">
                         + Admit
                       </span>
                     </div>
@@ -186,7 +186,7 @@ export const BedMatrixView: React.FC<BedMatrixViewProps> = ({
                 </div>
 
                 {/* Footer wing indicator */}
-                <div className="text-[9px] text-slate-400 truncate">
+                <div className="text-[11px] font-medium text-slate-500 truncate">
                   {bed.zone}
                 </div>
               </div>

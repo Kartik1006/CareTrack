@@ -326,3 +326,4 @@ INSERT INTO audit_logs (
 ('AUD-004', '2026-11-12 09:30:00+00', 'DISCHARGE_APPROVED_DOCTOR', 'Dr. Sarah Lin, MD', 'doctor', 'CT-102', 'Marcus Brody', 'Approved patient for discharge following 4 consecutive fever-free days. Dispatched to Admin Queue.'),
 ('AUD-005', '2026-11-12 09:38:00+00', 'TEMPERATURE_CORRECTED', 'Nurse Jessica Hayes, RN', 'nurse', 'CT-110', 'Gabriel Santos', 'Authorized temperature correction: Changed 39.5°C -> 37.3°C. Reason: Calibration artifact on initial device, re-checked with calibrated unit.')
 ON CONFLICT (id) DO NOTHING;
+

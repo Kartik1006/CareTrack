@@ -183,7 +183,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     °C
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500 mt-1">Default: 38.0°C</p>
+                <p className="text-xs text-slate-500 mt-1">Default: 38.0°C</p>
               </div>
 
               <div>
@@ -197,7 +197,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   className="w-full text-xs font-mono px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-teal-500 outline-none"
                   required
                 />
-                <p className="text-[11px] text-slate-500 mt-1">Controls current calendar day for rounds</p>
+                <p className="text-xs text-slate-500 mt-1">Controls current calendar day for rounds</p>
               </div>
             </div>
 
@@ -236,7 +236,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   href="https://supabase.com/dashboard/project/kqdsmsvxahnultzmhncl/sql/new"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-[11px] shadow-xs"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-xs"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
                   <span>Open Supabase SQL Editor (Run Tables Script)</span>
@@ -311,16 +311,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               {showSql && (
                 <div className="mt-3 p-3 bg-slate-900 rounded-xl text-slate-200 text-xs font-mono relative">
                   <div className="flex justify-between items-center mb-2 pb-2 border-b border-slate-700">
-                    <span className="text-[11px] text-slate-400">PostgreSQL Schema for Supabase</span>
+                    <span className="text-xs text-slate-400 font-medium">PostgreSQL Schema for Supabase</span>
                     <button
                       onClick={handleCopySql}
-                      className="px-2.5 py-1 rounded bg-teal-600 hover:bg-teal-700 text-white text-[10px] flex items-center gap-1 font-sans font-bold"
+                      className="px-2.5 py-1 rounded bg-teal-600 hover:bg-teal-700 text-white text-xs flex items-center gap-1 font-sans font-bold"
                     >
                       {copiedSql ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                       {copiedSql ? 'Copied!' : 'Copy SQL'}
                     </button>
                   </div>
-                  <pre className="max-h-56 overflow-y-auto text-[11px] leading-tight text-slate-300">
+                  <pre className="max-h-56 overflow-y-auto text-xs leading-relaxed text-slate-300">
                     {SUPABASE_SCHEMA_SQL}
                   </pre>
                 </div>
@@ -386,7 +386,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 placeholder="Paste backup JSON string here..."
                 value={importJsonText}
                 onChange={(e) => setImportJsonText(e.target.value)}
-                className="w-full font-mono text-[11px] p-2.5 rounded-lg border border-slate-300 outline-none"
+                className="w-full font-mono text-xs p-2.5 rounded-lg border border-slate-300 outline-none"
               />
               <button
                 type="button"

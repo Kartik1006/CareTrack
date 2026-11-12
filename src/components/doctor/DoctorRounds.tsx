@@ -352,7 +352,7 @@ export const DoctorRounds: React.FC<DoctorRoundsProps> = ({ onSelectPatient }) =
                             <span className="font-semibold text-slate-900 block">
                               Room {patient.roomNumber}
                             </span>
-                            <span className="text-[11px] text-slate-500">{patient.zone}</span>
+                            <span className="text-xs text-slate-600 font-medium">{patient.zone}</span>
                           </div>
                         </div>
                       </td>
@@ -365,7 +365,7 @@ export const DoctorRounds: React.FC<DoctorRoundsProps> = ({ onSelectPatient }) =
                         >
                           {patient.fullName}
                         </button>
-                        <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
+                        <div className="flex items-center gap-2 text-xs text-slate-600 font-medium mt-0.5">
                           <span>{patient.id}</span>
                           <span>•</span>
                           <span>
@@ -387,7 +387,7 @@ export const DoctorRounds: React.FC<DoctorRoundsProps> = ({ onSelectPatient }) =
                               {todayTemp.temperature.toFixed(1)}°C
                             </span>
                             {isFever && (
-                              <span className="text-[10px] text-rose-600 font-bold uppercase">
+                              <span className="text-xs text-rose-700 font-bold uppercase">
                                 Fever
                               </span>
                             )}
@@ -407,7 +407,7 @@ export const DoctorRounds: React.FC<DoctorRoundsProps> = ({ onSelectPatient }) =
                             <Badge variant="success" icon={<CheckCircle2 className="w-3.5 h-3.5" />}>
                               Completed
                             </Badge>
-                            <span className="text-[11px] text-slate-500 font-medium">
+                            <span className="text-xs text-slate-600 font-medium">
                               ({todayVisit?.conditionSummary})
                             </span>
                           </div>

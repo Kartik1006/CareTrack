@@ -58,13 +58,13 @@ export const AuditTrailView: React.FC = () => {
   const getRoleBadge = (role: UserRole) => {
     switch (role) {
       case 'nurse':
-        return <span className="text-teal-700 bg-teal-50 px-2 py-0.5 rounded-md font-semibold text-[10px] border border-teal-200">Nurse</span>;
+        return <span className="text-teal-700 bg-teal-50 px-2.5 py-0.5 rounded-md font-semibold text-xs border border-teal-200">Nurse</span>;
       case 'doctor':
-        return <span className="text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md font-semibold text-[10px] border border-indigo-200">Doctor</span>;
+        return <span className="text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-md font-semibold text-xs border border-indigo-200">Doctor</span>;
       case 'admin':
-        return <span className="text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md font-semibold text-[10px] border border-amber-200">Admin</span>;
+        return <span className="text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-md font-semibold text-xs border border-amber-200">Admin</span>;
       case 'management':
-        return <span className="text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md font-semibold text-[10px] border border-emerald-200">Management</span>;
+        return <span className="text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-md font-semibold text-xs border border-emerald-200">Management</span>;
     }
   };
 
@@ -163,7 +163,7 @@ export const AuditTrailView: React.FC = () => {
                     <tr key={log.id} className="hover:bg-slate-50/80 transition-colors">
                       <td className="px-5 py-3.5 whitespace-nowrap">
                         <span className="font-mono text-slate-800 font-semibold block">{timeStr}</span>
-                        <span className="text-[10px] text-slate-400 font-mono">{dateStr}</span>
+                        <span className="text-xs text-slate-500 font-mono">{dateStr}</span>
                       </td>
 
                       <td className="px-5 py-3.5 whitespace-nowrap">
@@ -173,7 +173,7 @@ export const AuditTrailView: React.FC = () => {
                       <td className="px-5 py-3.5 whitespace-nowrap">
                         <div className="flex items-center gap-1.5">
                           {getRoleBadge(log.actorRole)}
-                          <span className="font-semibold text-slate-800 text-[11px] truncate max-w-[140px]">
+                          <span className="font-semibold text-slate-800 text-xs truncate max-w-[150px]">
                             {log.actorName}
                           </span>
                         </div>
@@ -183,7 +183,7 @@ export const AuditTrailView: React.FC = () => {
                         {log.patientName ? (
                           <div>
                             <span className="font-semibold text-slate-900 block">{log.patientName}</span>
-                            <span className="text-[10px] text-slate-400 font-mono">{log.patientId}</span>
+                            <span className="text-xs text-slate-500 font-mono">{log.patientId}</span>
                           </div>
                         ) : (
                           <span className="text-slate-400 italic">Facility Wide</span>

@@ -155,7 +155,7 @@ export const DoctorVisitModal: React.FC<DoctorVisitModalProps> = ({
               </strong>
             </div>
             <span
-              className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+              className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${
                 todayTemp?.isFever ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'
               }`}
             >
@@ -199,7 +199,7 @@ export const DoctorVisitModal: React.FC<DoctorVisitModalProps> = ({
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <div>
-                <label className="text-[11px] text-slate-500 block mb-0.5">Pulse (bpm)</label>
+                <label className="text-xs text-slate-600 font-medium block mb-0.5">Pulse (bpm)</label>
                 <input
                   type="number"
                   placeholder="e.g. 74"
@@ -209,7 +209,7 @@ export const DoctorVisitModal: React.FC<DoctorVisitModalProps> = ({
                 />
               </div>
               <div>
-                <label className="text-[11px] text-slate-500 block mb-0.5">SpO2 (%)</label>
+                <label className="text-xs text-slate-600 font-medium block mb-0.5">SpO2 (%)</label>
                 <input
                   type="number"
                   placeholder="e.g. 98"
@@ -219,7 +219,7 @@ export const DoctorVisitModal: React.FC<DoctorVisitModalProps> = ({
                 />
               </div>
               <div>
-                <label className="text-[11px] text-slate-500 block mb-0.5">BP (mmHg)</label>
+                <label className="text-xs text-slate-600 font-medium block mb-0.5">BP (mmHg)</label>
                 <input
                   type="text"
                   placeholder="e.g. 120/80"
@@ -229,7 +229,7 @@ export const DoctorVisitModal: React.FC<DoctorVisitModalProps> = ({
                 />
               </div>
               <div>
-                <label className="text-[11px] text-slate-500 block mb-0.5">Resp Rate (/min)</label>
+                <label className="text-xs text-slate-600 font-medium block mb-0.5">Resp Rate (/min)</label>
                 <input
                   type="number"
                   placeholder="e.g. 16"

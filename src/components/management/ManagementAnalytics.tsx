@@ -118,7 +118,7 @@ export const ManagementAnalytics: React.FC = () => {
 
             <div className="flex flex-col sm:flex-row items-center gap-2">
               <div className="bg-black/30 p-3 rounded-xl text-center min-w-[120px] border border-white/10">
-                <span className="text-[10px] uppercase text-rose-200 font-semibold block">
+                <span className="text-xs uppercase text-rose-200 font-bold block">
                   Mortality Rate
                 </span>
                 <span className="text-2xl font-black font-mono text-rose-200">

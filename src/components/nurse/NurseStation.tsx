@@ -282,7 +282,7 @@ export const NurseStation: React.FC<NurseStationProps> = ({ onSelectPatient }) =
                             <span className="font-semibold text-slate-900 block">
                               Room {patient.roomNumber}
                             </span>
-                            <span className="text-[11px] text-slate-500">{patient.zone}</span>
+                            <span className="text-xs text-slate-600 font-medium">{patient.zone}</span>
                           </div>
                         </div>
                       </td>
@@ -296,7 +296,7 @@ export const NurseStation: React.FC<NurseStationProps> = ({ onSelectPatient }) =
                           >
                             {patient.fullName}
                           </button>
-                          <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
+                          <div className="flex items-center gap-2 text-xs text-slate-600 font-medium mt-0.5">
                             <span>{patient.id}</span>
                             <span>•</span>
                             <span>
@@ -321,7 +321,7 @@ export const NurseStation: React.FC<NurseStationProps> = ({ onSelectPatient }) =
                             </span>
                             {todayRecord.isCorrected && (
                               <span
-                                className="text-[10px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-md font-medium"
+                                className="text-xs bg-amber-100 text-amber-900 px-2 py-0.5 rounded-md font-semibold"
                                 title={`Corrected: was ${todayRecord.previousTemperature}°C (${todayRecord.correctionReason})`}
                               >
                                 Corrected
@@ -329,7 +329,7 @@ export const NurseStation: React.FC<NurseStationProps> = ({ onSelectPatient }) =
                             )}
                           </div>
                         ) : (
-                          <span className="text-xs text-slate-400 italic">Not recorded yet</span>
+                          <span className="text-xs text-slate-500 italic font-medium">Not recorded yet</span>
                         )}
                       </td>
 

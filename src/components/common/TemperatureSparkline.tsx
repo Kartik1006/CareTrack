@@ -75,10 +75,10 @@ export const TemperatureSparkline: React.FC<TemperatureSparklineProps> = ({
             <text
               x={width - paddingX + 2}
               y={thresholdY + 3}
-              fontSize="8"
+              fontSize="10"
               fill="#ef4444"
               textAnchor="start"
-              className="font-mono font-medium"
+              className="font-mono font-bold"
             >
               {feverThreshold}°
             </text>
@@ -114,7 +114,7 @@ export const TemperatureSparkline: React.FC<TemperatureSparklineProps> = ({
         ))}
       </svg>
       {showLabels && (
-        <div className="flex justify-between w-full text-[10px] text-slate-400 mt-1 px-1">
+        <div className="flex justify-between w-full text-xs text-slate-500 font-medium mt-1.5 px-1">
           <span>{sorted[0]?.date.slice(5)}</span>
           <span className="font-semibold text-slate-700">
             {sorted[sorted.length - 1]?.temperature.toFixed(1)}°C

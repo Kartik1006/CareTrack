@@ -163,7 +163,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onSelectPatient 
             <Award className="w-4 h-4" />
             <span>Doctor-Approved Discharge Queue</span>
             {pendingAdminDischarges.length > 0 && (
-              <span className="bg-purple-100 text-purple-800 text-[11px] px-2 py-0.5 rounded-full font-bold">
+              <span className="bg-purple-100 text-purple-800 text-xs px-2.5 py-0.5 rounded-full font-bold">
                 {pendingAdminDischarges.length}
               </span>
             )}
@@ -179,7 +179,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onSelectPatient 
           >
             <Bed className="w-4 h-4" />
             <span>74-Bed Facility Matrix</span>
-            <span className="bg-slate-100 text-slate-600 text-[11px] px-2 py-0.5 rounded-full">
+            <span className="bg-slate-100 text-slate-600 text-xs px-2.5 py-0.5 rounded-full font-semibold">
               {availableBedsCount} open
             </span>
           </button>
@@ -247,7 +247,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onSelectPatient 
                       <p className="font-semibold">
                         Approved by: {patient.dischargeApprovedByDoctor}
                       </p>
-                      <p className="text-[11px] text-purple-700 italic">
+                      <p className="text-xs text-purple-800 italic">
                         "{patient.dischargeDoctorNotes}"
                       </p>
                     </div>
@@ -333,7 +333,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onSelectPatient 
                         </td>
                         <td className="px-5 py-3 font-semibold text-slate-900">
                           {patient.fullName}
-                          <span className="block text-[10px] text-slate-400 font-normal">
+                          <span className="block text-xs text-slate-500 font-normal">
                             {patient.id} • {patient.age}y {patient.gender}
                           </span>
                         </td>

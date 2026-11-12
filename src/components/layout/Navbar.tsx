@@ -9,7 +9,7 @@ export function Navbar({ currentTab, onOpenSettings, onOpenRoles, onToggleMobile
     <div className="header-tools">
       {isDbConnected && (
         <span
-          className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200"
+          className="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200"
           title="Connected to Supabase PostgreSQL: all mutations are recorded to the database"
         >
           <Database size={13} className="text-emerald-600" />
